@@ -93,8 +93,18 @@ public class ServerConnection extends Thread {
                 node.receiveSkeleton(blockSkeleton);
                 break;
             case ALERT_WALLET:
-                Object[] data = (Object[]) incomingMessage.getMetadata();
-                node.alertWallet((String) data[0], (Address) data[1]);
+                if(node.USE.equals("Defi")){
+                    Object[] data = (Object[]) incomingMessage.getMetadata();
+                    node.alertWallet((String) data[0], (Address) data[1]);
+                }else if(node.USE.equals("Prescription")){
+                    Address incomingAddress = (Address) incomingMessage.getMetadata();
+                    node.alertWallet(null, incomingAddress);
+                }
+                
+                break;
+            case REQUEST_CALCULATION:
+                String hash = (String) incomingMessage.getMetadata();
+                node.calculateEligibity(hash, oout, oin);
                 break;
         }
     }

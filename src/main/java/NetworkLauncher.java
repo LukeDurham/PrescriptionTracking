@@ -1,4 +1,5 @@
 import node.Node;
+import node.NodeType;
 import node.communication.Address;
 import node.communication.utils.Utils;
 
@@ -14,6 +15,8 @@ import java.util.StringTokenizer;
  * Launches a network given specified configurations
  */
 public class NetworkLauncher {
+
+    NodeType nt;
 
     /* Make a list of the entirety of each node's address */
     private static final ArrayList<Address> globalPeers = new ArrayList<Address>();
@@ -49,8 +52,6 @@ public class NetworkLauncher {
             int debugLevel = Integer.parseInt(prop.getProperty("DEBUG_LEVEL"));
             String use = prop.getProperty("USE");
 
-
-
             /* List of node objects for the launcher to start*/
             ArrayList<Node> nodes = new ArrayList<Node>();
 
@@ -60,8 +61,14 @@ public class NetworkLauncher {
                 timedWaitDelay = Integer.parseInt(args[1]);
             }
 
-            for (int i = startingPort; i < startingPort + numNodes; i++) {
-                nodes.add(new Node(use, i, maxConnections, minConnections, numNodes, quorumSize, minimumTransactions, debugLevel));
+            for (int i = startingPort; i < (startingPort) + (numNodes/2); i++) {
+                nodes.add(new Node(NodeType.Doctor, use, i, maxConnections, minConnections, numNodes, quorumSize, minimumTransactions, debugLevel));
+                System.out.println("Added Doctor");
+            }
+
+            for (int i = (startingPort) + (numNodes/2); i < startingPort + numNodes; i++) {
+                nodes.add(new Node(NodeType.Patient, use, i, maxConnections, minConnections, numNodes, quorumSize, minimumTransactions, debugLevel));
+                System.out.println("Added Patient");
             }
 
 
@@ -83,7 +90,7 @@ public class NetworkLauncher {
                     st = new StringTokenizer(name, "_");
                     String host = st.nextToken();
                     int port = Integer.parseInt(st.nextToken().replaceFirst(".txt", ""));
-                    globalPeers.add(new Address(port, host));
+                    globalPeers.add(new Address(port, host, NodeType.Doctor));
                 }
             }       
 

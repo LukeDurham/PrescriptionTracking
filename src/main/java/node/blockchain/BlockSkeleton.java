@@ -1,6 +1,7 @@
 package node.blockchain;
 
 import node.communication.BlockSignature;
+import node.communication.ValidationResultSignature;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,12 +12,19 @@ public class BlockSkeleton implements Serializable{
     private String hash;
     private final ArrayList<String> keys;
     private ArrayList<BlockSignature> signatures;
+    private ArrayList<ArrayList<ValidationResultSignature>> validationResultSignatures;
 
-    public BlockSkeleton (int blockId, ArrayList<String> keys, ArrayList<BlockSignature> signatures, String hash){
+
+    public ArrayList<ArrayList<ValidationResultSignature>> getValidationResultSignatures() {
+        return validationResultSignatures;
+    }
+
+    public BlockSkeleton (int blockId, ArrayList<String> keys, ArrayList<BlockSignature> signatures, String hash, ArrayList<ArrayList<ValidationResultSignature>> validationResultSignatures){
         this.keys = keys;
         this.blockId = blockId;
         this.signatures = signatures;
         this.hash = hash;
+        this.validationResultSignatures = validationResultSignatures;
     }
 
     public ArrayList<BlockSignature> getSignatures() {return signatures;}
