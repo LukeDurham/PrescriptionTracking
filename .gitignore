@@ -1,0 +1,4 @@
+*.class
+target/*.*
+target/*
+src/main/java/node/nodeRegistry/*

@@ -233,7 +233,7 @@ public class Client {
                             defiClient.updateAccounts(mtp);
                         }else if(use.equals("Prescription")){
                             ArrayList<PtTransaction> ptTransactions = (ArrayList<PtTransaction>) incomingMessage.getMetadata();
-                            // defiClient.updateAccounts(mtp);
+                            ptClient.readIncomingTransactions(ptTransactions);
                         }
                         
                     }

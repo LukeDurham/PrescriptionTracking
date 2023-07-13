@@ -78,21 +78,28 @@ public class NetworkLauncher {
                 throw new RuntimeException(e);
             }
 
-            StringTokenizer st;
-            String path = "./src/main/java/node/nodeRegistry/";
-            File folder = new File(path);
-            File[] registeredNodes = folder.listFiles();
+            // StringTokenizer st;
+            // String path = "./src/main/java/node/nodeRegistry/";
+            // File folder = new File(path);
+            // File[] registeredNodes = folder.listFiles();
 
-            for (int i = 0; i < registeredNodes.length; i++) {
-                String name = registeredNodes[i].getName();
+            // for (int i = 0; i < registeredNodes.length; i++) {
+            //     String name = registeredNodes[i].getName();
 
-                if(!name.contains("keep")){
-                    st = new StringTokenizer(name, "_");
-                    String host = st.nextToken();
-                    int port = Integer.parseInt(st.nextToken().replaceFirst(".txt", ""));
-                    globalPeers.add(new Address(port, host, NodeType.Doctor));
-                }
-            }       
+            //     if(!name.contains("keep")){
+            //         st = new StringTokenizer(name, "_");
+            //         String host = st.nextToken();
+            //         int port = Integer.parseInt(st.nextToken().replaceFirst(".txt", ""));
+            //         globalPeers.add(new Address(port, host, NodeType.Doctor));
+            //     }
+            // }       
+
+
+            /* DOES NOT WORK FOR R2 */
+            for(Node node : nodes){
+                globalPeers.add(node.getAddress());
+                System.out.println(node.getAddress().getNodeType().name());
+            }
 
             NetworkLauncher n = new NetworkLauncher();
             n.startNetworkClients(globalPeers, nodes); // Begins network connections

@@ -19,13 +19,13 @@ public class Algorithm extends Event{
     }
 
     public boolean runAlgorithm(PtTransaction transaction){
-        Random random = new Random(algorithmSeed);
-        int flip = random.nextInt(2);
-
+        //Random random = new Random(algorithmSeed);
+        Random random2 = new Random();
+        int flip = random2.nextInt(2);
         if(flip == 0){
             return true;
+        }else{
+            return false;
         }
-
-        return false;
     }
 }

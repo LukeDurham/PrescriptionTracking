@@ -405,7 +405,7 @@ public class Node  {
             ValidationResultSignature vrs = new ValidationResultSignature(sig, myAddress, vr);
 
             try {
-                oout.writeObject(new Message(new Message(Request.CALCULATION_COMPLETE, vrs)));
+                oout.writeObject(new Message(Request.CALCULATION_COMPLETE, vrs));
                 oout.flush();
                 System.out.println("Node " +myAddress.getPort() + ": Sent calculation result " + vr.isValid());
 
@@ -414,10 +414,6 @@ public class Node  {
             }
         }
     }
-
-
-
-
 
     public void sendMempoolHashes() {
         synchronized (memPoolLock){
@@ -985,7 +981,7 @@ public class Node  {
                         if(algorithms.size() == 3){ // if we have 3
                             Random random = new Random();
                             algorithmSeed = algorithms.get(random.nextInt(3)).getAlgorithmSeed(); // pick 1
-                            System.out.println("Node " + myAddress.getPort() + "(Patient): selected algorithm");
+                            System.out.println("Node " + myAddress.getPort() + "(Patient): selected algorithm " + algorithmSeed + " from " + algorithms);
                         }
                     }
                 }
