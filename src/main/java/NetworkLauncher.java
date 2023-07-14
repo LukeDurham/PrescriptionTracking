@@ -17,7 +17,7 @@ import java.util.StringTokenizer;
 public class NetworkLauncher {
 
     NodeType nt;
-
+    /*private final int QUORUM, NUM_NODES;
     /* Make a list of the entirety of each node's address */
     private static final ArrayList<Address> globalPeers = new ArrayList<Address>();
 
@@ -61,15 +61,20 @@ public class NetworkLauncher {
                 timedWaitDelay = Integer.parseInt(args[1]);
             }
 
-            for (int i = startingPort; i < (startingPort) + (numNodes/2); i++) {
+            int numberOfQuorumMembers = 3;
+            int numberOfMembers = 10;
+
+            for (int i = startingPort; i < (startingPort + numberOfQuorumMembers); i++) {
                 nodes.add(new Node(NodeType.Doctor, use, i, maxConnections, minConnections, numNodes, quorumSize, minimumTransactions, debugLevel));
                 System.out.println("Added Doctor");
             }
 
-            for (int i = (startingPort) + (numNodes/2); i < startingPort + numNodes; i++) {
+            for (int i = startingPort + numberOfQuorumMembers; i < (startingPort + numberOfMembers); i++) {
                 nodes.add(new Node(NodeType.Patient, use, i, maxConnections, minConnections, numNodes, quorumSize, minimumTransactions, debugLevel));
                 System.out.println("Added Patient");
             }
+
+            
 
 
             try {
