@@ -202,11 +202,17 @@ public class Node {
      * 
      * @param globalPeers
      */
-    public void requestConnections(ArrayList<Address> globalPeers) {
+    public void requestConnections(ArrayList<ArrayList<Address>> globalPeers) {
         try {
             this.globalPeers = globalPeers;
-
-            if (globalPeers.size() > 0) {
+            int globalPeerCount = 0;
+            for (ArrayList<Address> arrayList : globalPeers) {
+                if (arrayList.size() > 0) {
+                    globalPeerCount++;
+                    break;
+                }
+            }
+            if (globalPeerCount > 0) {
                 /* Begin seeking connections */
                 ClientConnection connect = new ClientConnection(this, globalPeers);
                 connect.start();
@@ -450,25 +456,24 @@ public class Node {
                 if (ptTransaction.getEvent().getAction().name().equals("Prescription")) {
                     ArrayList<ValidationResultSignature> vrs = new ArrayList<>();
 
-                    for (Address address : globalPeers) {
-                        if (address.getNodeType().name().equals("Patient")) {
-                            foundAPatient = true;
-                            System.out.println("Node: " + myAddress.getPort()
-                                    + "(Doctor): About to send out calc request to patient");
-                            Message reply = Messager.sendTwoWayMessage(address,
-                                    new Message(Request.REQUEST_CALCULATION, hash), myAddress);
-                            System.out.println(
-                                    "Node: " + myAddress.getPort() + "(Doctor): Sent out calc request to patient");
+                    for (Address address : globalPeers.get(2)) {
+                        foundAPatient = true;
+                        System.out.println("Node: " + myAddress.getPort()
+                                + "(Doctor): About to send out calc request to patient");
+                        Message reply = Messager.sendTwoWayMessage(address,
+                                new Message(Request.REQUEST_CALCULATION, hash), myAddress);
+                        System.out.println(
+                                "Node: " + myAddress.getPort() + "(Doctor): Sent out calc request to patient");
 
-                            if (reply.getRequest().name().equals("CALCULATION_COMPLETE")) {
-                                ValidationResultSignature vr = (ValidationResultSignature) reply.getMetadata();
-                                vrs.add(vr);
-                                System.out.println(
-                                        "Node: " + myAddress.getPort() + "(Doctor): Added vr to vrs from patient");
-                            } else {
-                                System.out.println("Node: " + myAddress.getPort() + "(Doctor): Calc not complete?");
-                            }
+                        if (reply.getRequest().name().equals("CALCULATION_COMPLETE")) {
+                            ValidationResultSignature vr = (ValidationResultSignature) reply.getMetadata();
+                            vrs.add(vr);
+                            System.out.println(
+                                    "Node: " + myAddress.getPort() + "(Doctor): Added vr to vrs from patient");
+                        } else {
+                            System.out.println("Node: " + myAddress.getPort() + "(Doctor): Calc not complete?");
                         }
+
                     }
 
                     if (!foundAPatient)
@@ -1114,10 +1119,12 @@ public class Node {
                 // chainString(blockchain));
                 while (quorum.size() < QUORUM_SIZE) {
                     quorumNodeIndex = random.nextInt(NUM_NODES); // may be wrong but should still work
-                    quorumNode = globalPeers.get(quorumNodeIndex);
-                    if (!containsAddress(quorum, quorumNode) && quorumNode.getNodeType().equals(NodeType.Doctor)) {
+                    quorumNode = globalPeers.get(0).get(quorumNodeIndex); // AARON randomization for whether they select
+                                                                          // from doctor or patient? for now lets just
+                                                                          // do doctor
+                    if (!containsAddress(quorum, quorumNode)) {
                         // System.out.println("Added doctor to q");
-                        quorum.add(globalPeers.get(quorumNodeIndex));
+                        quorum.add(globalPeers.get(0).get(quorumNodeIndex));
                     }
                 }
                 return quorum;
@@ -1210,7 +1217,8 @@ public class Node {
     private final Object lock, quorumLock, memPoolLock, quorumReadyVotesLock, memPoolRoundsLock, sigRoundsLock,
             blockLock, accountsLock;
     private int quorumReadyVotes, memPoolRounds, algorithmSeed;
-    private ArrayList<Address> globalPeers, localPeers, ptClients;
+    private ArrayList<Address> localPeers, ptClients;
+    private ArrayList<ArrayList<Address>> globalPeers;
     private ArrayList<Algorithm> algorithms;
     private HashMap<String, Transaction> mempool;
     HashMap<String, Integer> accounts;
@@ -1221,7 +1229,7 @@ public class Node {
     private Block quorumBlock;
     private PrivateKey privateKey;
     private int state;
-    protected NodeType nodeType;
+    public NodeType nodeType;
     public final String USE;
 
 }

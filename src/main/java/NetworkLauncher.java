@@ -19,14 +19,14 @@ public class NetworkLauncher {
     NodeType nt;
 
     /* Make a list of the entirety of each node's address */
-    private static final ArrayList<Address> globalPeers = new ArrayList<Address>();
-
+    private static final ArrayList<ArrayList<Address>> globalPeers = new ArrayList<ArrayList<Address>>();
 
     public static void main(String[] args) {
         String usage = "Usage: NetworkLauncher " +
                 "[-o <see options>] [-t <TimedWaitDelayMilliseconds>]" +
                 "\n Options:" +
-                "\n -o <myNodesStartingPort> <myNodesEndingPort> <otherSubNetStartingPort> <otherSubNetEndingPort> <otherSubNetHostName> ..." +
+                "\n -o <myNodesStartingPort> <myNodesEndingPort> <otherSubNetStartingPort> <otherSubNetEndingPort> <otherSubNetHostName> ..."
+                +
                 "\n     Specifies information regarding other subnets of nodes. " +
                 "\n     First we specify our range of port for localhost, then list other subnets." +
                 "\n     Total number of nodes must be under the specified amount in config.properties" +
@@ -52,7 +52,7 @@ public class NetworkLauncher {
             int debugLevel = Integer.parseInt(prop.getProperty("DEBUG_LEVEL"));
             String use = prop.getProperty("USE");
 
-            /* List of node objects for the launcher to start*/
+            /* List of node objects for the launcher to start */
             ArrayList<Node> nodes = new ArrayList<Node>();
 
             int timedWaitDelay = 0;
@@ -61,16 +61,17 @@ public class NetworkLauncher {
                 timedWaitDelay = Integer.parseInt(args[1]);
             }
 
-            for (int i = startingPort; i < (startingPort) + (numNodes/2); i++) {
-                nodes.add(new Node(NodeType.Doctor, use, i, maxConnections, minConnections, numNodes, quorumSize, minimumTransactions, debugLevel));
+            for (int i = startingPort; i < (startingPort) + (numNodes / 2); i++) {
+                nodes.add(new Node(NodeType.Doctor, use, i, maxConnections, minConnections, numNodes, quorumSize,
+                        minimumTransactions, debugLevel));
                 System.out.println("Added Doctor");
             }
 
-            for (int i = (startingPort) + (numNodes/2); i < startingPort + numNodes; i++) {
-                nodes.add(new Node(NodeType.Patient, use, i, maxConnections, minConnections, numNodes, quorumSize, minimumTransactions, debugLevel));
+            for (int i = (startingPort) + (numNodes / 2); i < startingPort + numNodes; i++) {
+                nodes.add(new Node(NodeType.Patient, use, i, maxConnections, minConnections, numNodes, quorumSize,
+                        minimumTransactions, debugLevel));
                 System.out.println("Added Patient");
             }
-
 
             try {
                 Thread.sleep(timedWaitDelay);
@@ -84,20 +85,36 @@ public class NetworkLauncher {
             // File[] registeredNodes = folder.listFiles();
 
             // for (int i = 0; i < registeredNodes.length; i++) {
-            //     String name = registeredNodes[i].getName();
+            // String name = registeredNodes[i].getName();
 
-            //     if(!name.contains("keep")){
-            //         st = new StringTokenizer(name, "_");
-            //         String host = st.nextToken();
-            //         int port = Integer.parseInt(st.nextToken().replaceFirst(".txt", ""));
-            //         globalPeers.add(new Address(port, host, NodeType.Doctor));
-            //     }
-            // }       
+            // if(!name.contains("keep")){
+            // st = new StringTokenizer(name, "_");
+            // String host = st.nextToken();
+            // int port = Integer.parseInt(st.nextToken().replaceFirst(".txt", ""));
+            // globalPeers.add(new Address(port, host, NodeType.Doctor));
+            // }
+            // }
 
+            // initialize globalPeers
+            ArrayList<Address> doctorList = new ArrayList<>();
+            ArrayList<Address> pharmacistList = new ArrayList<>();
+            ArrayList<Address> patientList = new ArrayList<>();
+            globalPeers.add(doctorList);
+            globalPeers.add(pharmacistList);
+            globalPeers.add(patientList);
 
             /* DOES NOT WORK FOR R2 */
-            for(Node node : nodes){
-                globalPeers.add(node.getAddress());
+            // comeback AARON
+            for (Node node : nodes) {
+                // patients first because we have the most patients and don't have to go through
+                // the worst case if statements
+                if (node.nodeType.name().equals("Patients")) {
+                    globalPeers.get(2).add(node.getAddress());
+                } else if (node.nodeType.name().equals("Doctors")) {
+                    globalPeers.get(0).add(node.getAddress());
+                } else {
+                    globalPeers.get(1).add(node.getAddress());
+                }
                 System.out.println(node.getAddress().getNodeType().name());
             }
 
@@ -108,28 +125,29 @@ public class NetworkLauncher {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
             System.out.println("Error: args formatted incorrect" + e);
             System.out.println(usage);
         }
     }
 
     /* Gives each node a thread to start node connections */
-    public void startNetworkClients(ArrayList<Address> globalPeers, ArrayList<Node> nodes){
-        for(int i = 0; i < nodes.size(); i++){
-            //Collections.shuffle(globalPeers);
+    public void startNetworkClients(ArrayList<ArrayList<Address>> globalPeers, ArrayList<Node> nodes) {
+        for (int i = 0; i < nodes.size(); i++) {
+            // Collections.shuffle(globalPeers);
             new NodeLauncher(nodes.get(i), globalPeers).start();
         }
     }
 
     /**
-     * Thread which is assigned to start a single node within the NetworkLaunchers managed nodes
+     * Thread which is assigned to start a single node within the NetworkLaunchers
+     * managed nodes
      */
     class NodeLauncher extends Thread {
         Node node;
-        ArrayList<Address> globalPeers;
+        ArrayList<ArrayList<Address>> globalPeers;
 
-        NodeLauncher(Node node, ArrayList<Address> globalPeers){
+        NodeLauncher(Node node, ArrayList<ArrayList<Address>> globalPeers) {
             this.node = node;
             this.globalPeers = globalPeers;
         }
