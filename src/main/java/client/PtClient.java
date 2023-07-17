@@ -26,6 +26,9 @@ public class PtClient {
     Address myAddress;
     ArrayList<Address> fullNodes; //list of Doctors addresses in the quorum 
     String doctorName;
+    private long startTime;
+    private long endTime;
+
 
     public PtClient(Object updateLock, BufferedReader reader, Address myAddress, ArrayList<Address> fullNodes) {
         this.updateLock = updateLock;
@@ -64,6 +67,7 @@ public class PtClient {
     }
 
     protected void submitTransaction(PtTransaction transaction, Address address){
+        this.startTime = System.nanoTime(); // start the timer
         try {
             Socket s = new Socket(address.getHost(), address.getPort());
             OutputStream out = s.getOutputStream();
@@ -110,5 +114,9 @@ public class PtClient {
                 System.out.println("TX " + ptTransaction.getUID() + " Invalid. Yes votes: " + trueCounter + ". No votes: " + falseCounter);
             }
         }
+        this.endTime = System.nanoTime(); // end the timer
+        long elapsedTime = this.endTime - this.startTime; // get the elapsed time in nanoseconds
+        double seconds = (double) elapsedTime / 1_000_000_000.0; // convert to seconds
+        System.out.println("Elapsed time: " + seconds + " seconds");
     }
 }
