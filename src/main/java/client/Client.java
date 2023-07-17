@@ -158,7 +158,6 @@ public class Client {
 
                 /* Submit Transaction */
                 case("t"):
-                    if(use.equals("Defi")) defiClient.submitTransaction();
                     if(use.equals("Prescription")) ptClient.submitPrescription();
                     break;
 
