@@ -1118,7 +1118,8 @@ public class Node {
                 // System.out.println("Node " + myAddress.getPort() + ": blockhash" +
                 // chainString(blockchain));
                 while (quorum.size() < QUORUM_SIZE) {
-                    quorumNodeIndex = random.nextInt(NUM_NODES); // may be wrong but should still work
+                    quorumNodeIndex = random.nextInt(NUM_NODES); // may be wrong but should still work //look into
+                                                                 // NUM_NODES to just eligible nodes based on size...
                     quorumNode = globalPeers.get(0).get(quorumNodeIndex); // AARON randomization for whether they select
                                                                           // from doctor or patient? for now lets just
                                                                           // do doctor

@@ -100,8 +100,11 @@ public class NetworkLauncher {
             ArrayList<Address> pharmacistList = new ArrayList<>();
             ArrayList<Address> patientList = new ArrayList<>();
             globalPeers.add(doctorList);
+            System.out.println("Initialized and created doctor arraylist");
             globalPeers.add(pharmacistList);
+            System.out.println("Initialized and created pharmacist arraylist");
             globalPeers.add(patientList);
+            System.out.println("Initialized and created patient arraylist");
 
             /* DOES NOT WORK FOR R2 */
             // comeback AARON
@@ -110,10 +113,13 @@ public class NetworkLauncher {
                 // the worst case if statements
                 if (node.nodeType.name().equals("Patients")) {
                     globalPeers.get(2).add(node.getAddress());
+                    System.out.println("Add patient to patient arraylist");
                 } else if (node.nodeType.name().equals("Doctors")) {
                     globalPeers.get(0).add(node.getAddress());
+                    System.out.println("Add doctor to doctor arraylist");
                 } else {
                     globalPeers.get(1).add(node.getAddress());
+                    System.out.println("Add pharmacist to pharmacist arraylist");
                 }
                 System.out.println(node.getAddress().getNodeType().name());
             }
