@@ -2,7 +2,6 @@ package client;
 
 import java.io.*;
 import java.net.*;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Properties; 
 import java.util.regex.Pattern;
@@ -138,9 +137,7 @@ public class Client {
         Client wallet = new Client(port, 0);
         wallet.test = false; // This is not a test
 
-        while(!input.equals("exit") | !input.equals("e")){
-            System.out.print(">");
-            input = mainReader.readLine();
+        while ((input = mainReader.readLine()) != null){
             wallet.interpretInput(input);
         }
     }
