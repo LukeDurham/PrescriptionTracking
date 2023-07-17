@@ -431,7 +431,7 @@ public class Node  {
                 if(ptTransaction.getEvent().getAction().name().equals("Prescription")){
                     ArrayList<ValidationResultSignature> vrs = new ArrayList<>();
 
-                    for(Address address : globalPeers){
+                    for(Address address : localPeers){
                         if(address.getNodeType().name().equals("Patient")){
                             foundAPatient = true;
                             System.out.println("Node: " + myAddress.getPort() + "(Doctor): About to send out calc request to patient");
@@ -971,6 +971,7 @@ public class Node  {
                 ptTransactions.add(transactionInList);
             }
 
+            
             if(nodeType.name().equals("Patient")){
                 System.out.println("Patient looking in block for algo");
                 for(String key : keys){ // For each tx key

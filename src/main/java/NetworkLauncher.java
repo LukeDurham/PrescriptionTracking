@@ -66,12 +66,12 @@ public class NetworkLauncher {
 
             for (int i = startingPort; i < (startingPort + numberOfQuorumMembers); i++) {
                 nodes.add(new Node(NodeType.Doctor, use, i, maxConnections, minConnections, numNodes, quorumSize, minimumTransactions, debugLevel));
-                System.out.println("Added Doctor");
+                // System.out.println("Added Doctor");
             }
 
             for (int i = startingPort + numberOfQuorumMembers; i < (startingPort + numberOfMembers); i++) {
                 nodes.add(new Node(NodeType.Patient, use, i, maxConnections, minConnections, numNodes, quorumSize, minimumTransactions, debugLevel));
-                System.out.println("Added Patient");
+                // System.out.println("Added Patient");
             }
 
             
@@ -103,7 +103,7 @@ public class NetworkLauncher {
             /* DOES NOT WORK FOR R2 */
             for(Node node : nodes){
                 globalPeers.add(node.getAddress());
-                System.out.println(node.getAddress().getNodeType().name());
+                // System.out.println(node.getAddress().getNodeType().name());
             }
 
             NetworkLauncher n = new NetworkLauncher();
