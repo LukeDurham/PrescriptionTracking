@@ -1,23 +1,19 @@
+pharmacies=("Walgreens" "Walmart" "CVS")
+medications=("Adderall" "Xanax" "Fentanyl" "Ibuprofen" "Aleve")
+dosageAmount=(10 20 30 40 50 60)
 
+for i in {1..100}
+do
+    echo "t"
+    echo ${pharmacies[$((RANDOM % 3))]}
+    echo ${medications[$((RANDOM % 5))]}
+    echo ${dosageAmount[$((RANDOM % 5))]}
+    echo ${dosageAmount[$((RANDOM % 6))]}
+done > inputs.txt
 
-# Array of pharmacies
-pharmacies=('Walgreens' 'Walmart' 'CVS')
-
-# Array of medications
-medications=('Adderall' 'Xanax' 'Fentanyl' 'Ibuprofen' 'Aleve')
-
-# Array of dosages
-dosages=(10 20 30 40 50 60)
-
-# Run the script 100 times
-for ((i = 1; i <= 100; i++)); do
-    # Select random values
-    pharmacy=${pharmacies[$RANDOM % ${#pharmacies[@]}]}
-    medication=${medications[$RANDOM % ${#medications[@]}]}
-    dosage=${dosages[$RANDOM % ${#dosages[@]}]}
 
     # Use the generated inputs to call your Java program
-    java -cp . client.Client <<< $'t\n'"$pharmacy"'\n'"$medication"'\n'"$dosage mg"'\n'"$dosage"
+    java -cp . client.Client < inputs.txt
 done
 
 

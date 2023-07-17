@@ -40,13 +40,13 @@ public class PtClient {
 
     protected void submitPrescription() throws IOException {
         alertFullNode();
-        int transactionCounter = 0;
+        // int transactionCounter = 0;
 
         // private Date date;
         // private int amount;
         // private String medication;
         // private String doctorName;
-        while(transactionCounter < 100);
+        // while(transactionCounter < 100);
         
             System.out.println("Generating Transaction");
             System.out.println("Enter the Pharamacy"); //improve on this concept.
@@ -61,12 +61,12 @@ public class PtClient {
             Date date = new Date();
 
             submitTransaction(new PtTransaction(
-                new Prescription("TestPatient", pharmacy, doctorName, medication, dosage, new Date(date.getTime()), 
-                amount), String.valueOf(System.currentTimeMillis())), fullNodes.get(0));
+            new Prescription("TestPatient", pharmacy, doctorName, medication, dosage, new Date(date.getTime()), 
+            amount), String.valueOf(System.currentTimeMillis())), fullNodes.get(0));
 
-                transactionCounter++;
+                // transactionCounter++;
 
-                System.out.println("PTClient submitted prescription" + transactionCounter);
+            System.out.println("PTClient submitted prescription");
 
     }
 
