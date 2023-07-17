@@ -40,29 +40,33 @@ public class PtClient {
 
     protected void submitPrescription() throws IOException {
         alertFullNode();
+        int transactionCounter = 0;
 
         // private Date date;
         // private int amount;
         // private String medication;
         // private String doctorName;
+        while(transactionCounter < 100);
+        
+            System.out.println("Generating Transaction");
+            System.out.println("Enter the Pharamacy"); //improve on this concept.
+            String pharmacy = "CVS";
+            System.out.println("Enter the medication name"); 
+            String medication = "Adderall";
+            System.out.println("What is the dosage"); 
+            String dosage = "20mg";
+            System.out.println("How many?");
+            int amount = 30; ///dosage
 
-        System.out.println("Generating Transaction");
-        System.out.println("Enter the Pharamacy"); //improve on this concept.
-        String pharmacy = reader.readLine();
-        System.out.println("Enter the medication name"); 
-        String medication = reader.readLine();
-        System.out.println("What is the dosage"); 
-        String dosage = reader.readLine();
-        System.out.println("How many?");
-        int amount = Integer.valueOf(reader.readLine()); ///dosage
+            Date date = new Date();
 
-        Date date = new Date();
+            submitTransaction(new PtTransaction(
+                new Prescription("TestPatient", pharmacy, doctorName, medication, dosage, new Date(date.getTime()), 
+                amount), String.valueOf(System.currentTimeMillis())), fullNodes.get(0));
 
-        submitTransaction(new PtTransaction(
-            new Prescription("TestPatient", pharmacy, doctorName, medication, dosage, new Date(date.getTime()), 
-            amount), String.valueOf(System.currentTimeMillis())), fullNodes.get(0));
+                transactionCounter++;
 
-        System.out.println("PTClient submitted prescription");
+                System.out.println("PTClient submitted prescription" + transactionCounter);
 
     }
 
