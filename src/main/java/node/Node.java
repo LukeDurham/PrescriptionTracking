@@ -1,5 +1,14 @@
 package node;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
+
+
 import node.blockchain.*;
 import node.blockchain.defi.DefiBlock;
 import node.blockchain.defi.DefiTransaction;
@@ -52,6 +61,7 @@ import static node.communication.utils.Utils.*;
  * Beware, any methods below are a WIP
  */
 public class Node  {
+    
     private long startTimeBlockCon;
     private long startTimeQuorumAns;
     private long endTimeBlockCon;
@@ -391,25 +401,49 @@ public class Node  {
     }
 
 
-    public void calculateEligibity(String hash, ObjectOutputStream oout, ObjectInputStream oin){
-        synchronized (memPoolLock){
-            Algorithm algo = new Algorithm(algorithmSeed);
-            Boolean eligible = algo.runAlgorithm((PtTransaction)mempool.get(hash));
-            ValidationResult vr = new ValidationResult(eligible, algorithmSeed, hash);
-            byte[] sig = DSA.signHash(vr.getStringForSig(), privateKey);
-            
-            ValidationResultSignature vrs = new ValidationResultSignature(sig, myAddress, vr);
 
+    public void calculateEligibity(String Hash, ObjectOutputStream oout, ObjectInputStream oin) {
+        ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        ConcurrentLinkedQueue<ValidationResultSignature> results = new ConcurrentLinkedQueue<>();
+        synchronized (memPoolLock) {
+            List<Future<?>> futures = new ArrayList<>();
+            for (String hash : mempool.keySet()) {
+                futures.add(executor.submit(() -> {
+                    Algorithm algo = new Algorithm(algorithmSeed);
+                    Boolean eligible = algo.runAlgorithm((PtTransaction) mempool.get(hash));
+                    ValidationResult vr = new ValidationResult(eligible, algorithmSeed, hash);
+                    byte[] sig = DSA.signHash(vr.getStringForSig(), privateKey);
+                    ValidationResultSignature vrs = new ValidationResultSignature(sig, myAddress, vr);
+                    results.add(vrs);
+                }));
+            }
+
+            // Shutdown executor after all tasks are submitted
+            executor.shutdown();
+
+            // Wait for all tasks to complete
+            for (Future<?> future : futures) {
+                try {
+                    future.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        // Send the results
+        for (ValidationResultSignature vrs : results) {
             try {
                 oout.writeObject(new Message(Request.CALCULATION_COMPLETE, vrs));
                 oout.flush();
-                System.out.println("Node " +myAddress.getPort() + ": Sent calculation result " + vr.isValid());
-
+                System.out.println("Node " + myAddress.getPort() + ": Sent calculation result " + vrs.getVr().isValid());
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
+
+    
 
     public void sendMempoolHashes() {
         synchronized (memPoolLock){
