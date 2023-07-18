@@ -19,7 +19,7 @@ public class NetworkLauncher {
     NodeType nt;
     /*private final int QUORUM, NUM_NODES;
     /* Make a list of the entirety of each node's address */
-    private static final ArrayList<Address> globalPeers = new ArrayList<Address>();
+    private static final ArrayList<ArrayList<Address>> globalPeers = new ArrayList<ArrayList<Address>>();
 
 
     public static void main(String[] args) {
@@ -61,15 +61,13 @@ public class NetworkLauncher {
                 timedWaitDelay = Integer.parseInt(args[1]);
             }
 
-            int numberOfQuorumMembers = 5;
-            int numberOfMembers = 200;
 
-            for (int i = startingPort; i < (startingPort + numberOfQuorumMembers); i++) {
+            for (int i = startingPort; i < (startingPort + quorumSize); i++) {
                 nodes.add(new Node(NodeType.Doctor, use, i, maxConnections, minConnections, numNodes, quorumSize, minimumTransactions, debugLevel));
                 // System.out.println("Added Doctor");
             }
 
-            for (int i = startingPort + numberOfQuorumMembers; i < (startingPort + numberOfMembers); i++) {
+            for (int i = startingPort + quorumSize; i < (startingPort + numNodes); i++) {
                 nodes.add(new Node(NodeType.Patient, use, i, maxConnections, minConnections, numNodes, quorumSize, minimumTransactions, debugLevel));
                 // System.out.println("Added Patient");
             }
@@ -99,10 +97,29 @@ public class NetworkLauncher {
             //     }
             // }       
 
+            ArrayList<Address> doctorList = new ArrayList<Address>();
+            ArrayList<Address> pharmacistList = new ArrayList<Address>();
+            ArrayList<Address> patientList = new ArrayList<Address>();
 
+            globalPeers.add(doctorList); //index 0
+            globalPeers.add(pharmacistList); //index 1
+            globalPeers.add(patientList); //index 2
+            
             /* DOES NOT WORK FOR R2 */
             for(Node node : nodes){
-                globalPeers.add(node.getAddress());
+                if (node.nodeType.name().equals("Patient"))
+                {
+                    globalPeers.get(2).add(node.getAddress());
+                }
+                else if (node.nodeType.name().equals("Doctor"))
+                {
+                    globalPeers.get(0).add(node.getAddress());
+                }
+                else
+                {
+                    globalPeers.get(1).add(node.getAddress());
+                }
+               
                 // System.out.println(node.getAddress().getNodeType().name());
             }
 
@@ -120,7 +137,7 @@ public class NetworkLauncher {
     }
 
     /* Gives each node a thread to start node connections */
-    public void startNetworkClients(ArrayList<Address> globalPeers, ArrayList<Node> nodes){
+    public void startNetworkClients(ArrayList<ArrayList<Address>> globalPeers, ArrayList<Node> nodes){
         for(int i = 0; i < nodes.size(); i++){
             //Collections.shuffle(globalPeers);
             new NodeLauncher(nodes.get(i), globalPeers).start();
@@ -132,9 +149,9 @@ public class NetworkLauncher {
      */
     class NodeLauncher extends Thread {
         Node node;
-        ArrayList<Address> globalPeers;
+        ArrayList<ArrayList<Address>> globalPeers;
 
-        NodeLauncher(Node node, ArrayList<Address> globalPeers){
+        NodeLauncher(Node node, ArrayList<ArrayList<Address>> globalPeers){
             this.node = node;
             this.globalPeers = globalPeers;
         }

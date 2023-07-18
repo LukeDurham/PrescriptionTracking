@@ -15,9 +15,9 @@ import java.util.ArrayList;
  */
 public class ClientConnection extends Thread {
     private final Node node;
-    private final ArrayList<Address> globalPeers;
+    private final ArrayList<ArrayList<Address>> globalPeers;
 
-    public ClientConnection(Node node, ArrayList<Address> globalPeers) throws SocketException {
+    public ClientConnection(Node node, ArrayList<ArrayList<Address>> globalPeers) throws SocketException {
         this.node = node;
         this.globalPeers = globalPeers;
         setPriority(NORM_PRIORITY - 1);
@@ -25,7 +25,9 @@ public class ClientConnection extends Thread {
 
     public void run() {
         if (node.getLocalPeers().size() < node.getMaxPeers()) {
-            for (Address address : globalPeers) {
+            for(ArrayList<Address> arrayList: globalPeers)
+            {
+                for (Address address : arrayList) {
                 if (node.getLocalPeers().size() >= node.getMaxPeers()){
                     break;
                 }
@@ -58,6 +60,8 @@ public class ClientConnection extends Thread {
                     System.out.println(e2);
                 }
             }
+            }
+
         }
     }
 }
