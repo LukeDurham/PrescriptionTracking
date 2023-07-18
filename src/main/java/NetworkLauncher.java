@@ -111,10 +111,10 @@ public class NetworkLauncher {
             for (Node node : nodes) {
                 // patients first because we have the most patients and don't have to go through
                 // the worst case if statements
-                if (node.nodeType.name().equals("Patients")) {
+                if (node.nodeType.name().equals("Patient")) {
                     globalPeers.get(2).add(node.getAddress());
                     System.out.println("Add patient to patient arraylist");
-                } else if (node.nodeType.name().equals("Doctors")) {
+                } else if (node.nodeType.name().equals("Doctor")) {
                     globalPeers.get(0).add(node.getAddress());
                     System.out.println("Add doctor to doctor arraylist");
                 } else {
