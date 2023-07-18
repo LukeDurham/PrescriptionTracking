@@ -319,7 +319,7 @@ public class Node {
         stateChangeRequest(1);
         quorumSigs = new ArrayList<>();
         Block currentBlock = blockchain.getLast();
-        ArrayList<Address> quorum = deriveQuorum(currentBlock, 0);
+        //ArrayList<Address> quorum = deriveQuorum(currentBlock, 0);
 
         if (DEBUG_LEVEL == 1)
             System.out.println("Node " + myAddress.getPort() + " sent quorum is ready for q: " + quorum);
@@ -379,7 +379,7 @@ public class Node {
             }
 
             Block currentBlock = blockchain.getLast();
-            ArrayList<Address> quorum = deriveQuorum(currentBlock, 0);
+            //ArrayList<Address> quorum = deriveQuorum(currentBlock, 0);
 
             if (DEBUG_LEVEL == 1)
                 System.out.println("Node " + myAddress.getPort() + ": receiveQuorumReady invoked for " + quorum);
@@ -485,7 +485,7 @@ public class Node {
             if (DEBUG_LEVEL == 1)
                 System.out.println("Node " + myAddress.getPort() + ": sendMempoolHashes invoked");
 
-            ArrayList<Address> quorum = deriveQuorum(blockchain.getLast(), 0);
+            //ArrayList<Address> quorum = deriveQuorum(blockchain.getLast(), 0);
 
             for (Address quorumAddress : quorum) {
                 if (!myAddress.equals(quorumAddress)) {
@@ -539,7 +539,7 @@ public class Node {
         synchronized (memPoolRoundsLock) {
             if (DEBUG_LEVEL == 1)
                 System.out.println("Node " + myAddress.getPort() + ": receiveMempool invoked");
-            ArrayList<Address> quorum = deriveQuorum(blockchain.getLast(), 0);
+            //ArrayList<Address> quorum = deriveQuorum(blockchain.getLast(), 0);
             ArrayList<String> keysAbsent = new ArrayList<>();
             for (String key : keys) {
                 if (!mempool.containsKey(key)) {
@@ -671,7 +671,7 @@ public class Node {
                 }
             }
 
-            ArrayList<Address> quorum = deriveQuorum(blockchain.getLast(), 0);
+            //ArrayList<Address> quorum = deriveQuorum(blockchain.getLast(), 0);
 
             if (!containsAddress(quorum, signature.getAddress())) {
                 if (DEBUG_LEVEL == 1)
@@ -720,7 +720,7 @@ public class Node {
 
             // state = 4;
             stateChangeRequest(4);
-            ArrayList<Address> quorum = deriveQuorum(blockchain.getLast(), 0);
+            //ArrayList<Address> quorum = deriveQuorum(blockchain.getLast(), 0);
 
             if (!inQuorum()) {
                 System.out.println("Node " + myAddress.getPort() + ": tQs: not in quorum? q: " + quorum + " my addr: "
@@ -874,7 +874,7 @@ public class Node {
                 }
             }
 
-            ArrayList<Address> quorum = deriveQuorum(currentBlock, 0);
+            //ArrayList<Address> quorum = deriveQuorum(currentBlock, 0);
             int verifiedSignatures = 0;
             String hash = blockSkeleton.getHash();
 
@@ -1034,8 +1034,8 @@ public class Node {
         }
 
         /* need to add elif for use prescription. */
-
-        ArrayList<Address> quorum = deriveQuorum(blockchain.getLast(), 0);
+        //CHANGE AARON
+        this.quorum = deriveQuorum(blockchain.getLast(), 0);
 
         if (DEBUG_LEVEL == 1) {
             System.out.println(
@@ -1067,7 +1067,7 @@ public class Node {
     }
 
     public void sendOneWayMessageQuorum(Message message) {
-        ArrayList<Address> quorum = deriveQuorum(blockchain.getLast(), 0);
+        //ArrayList<Address> quorum = deriveQuorum(blockchain.getLast(), 0);
         for (Address quorumAddress : quorum) {
             if (!myAddress.equals(quorumAddress)) {
                 Messager.sendOneWayMessage(quorumAddress, message, myAddress);
@@ -1077,7 +1077,7 @@ public class Node {
 
     public boolean inQuorum() {
         synchronized (quorumLock) {
-            ArrayList<Address> quorum = deriveQuorum(blockchain.getLast(), 0);
+            //ArrayList<Address> quorum = deriveQuorum(blockchain.getLast(), 0);
             for (Address quorumAddress : quorum) {
                 if (myAddress.equals(quorumAddress)) {
                     return true;
@@ -1092,7 +1092,7 @@ public class Node {
             if (block.getBlockId() - 1 != blockchain.getLast().getBlockId()) { //
                 return false;
             }
-            ArrayList<Address> quorum = deriveQuorum(blockchain.getLast(), 0);
+            //ArrayList<Address> quorum = deriveQuorum(blockchain.getLast(), 0);
             for (Address quorumAddress : quorum) {
                 if (myAddress.equals(quorumAddress)) {
                     return true;
@@ -1233,5 +1233,6 @@ public class Node {
     private int state;
     public NodeType nodeType;
     public final String USE;
+    private ArrayList<Address> quorum;
 
 }
