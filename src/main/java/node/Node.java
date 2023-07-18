@@ -52,8 +52,10 @@ import static node.communication.utils.Utils.*;
  * Beware, any methods below are a WIP
  */
 public class Node  {
-    private long startTime;
-    private long endTime;
+    private long startTimeBlockCon;
+    private long startTimeQuorumAns;
+    private long endTimeBlockCon;
+    private long endtimeQuorumAns;
 
     /**
      * Node constructor creates node and begins server socket to accept connections
@@ -422,9 +424,10 @@ public class Node  {
                 PtTransaction ptTransaction = (PtTransaction) mempool.get(hash);
 
                 if(ptTransaction.getEvent().getAction().name().equals("Prescription")){
-                    this.startTime = System.nanoTime(); // start the timer
                     ArrayList<ValidationResultSignature> vrs = new ArrayList<>();
-                    for (Address quorumMeber: quorum )
+                    this.startTimeQuorumAns = System.nanoTime();
+                    this.startTimeBlockCon = System.nanoTime(); // start the timer
+                    for (Address quorumMeber: quorum)
                     {
                         int selectionAmount = 3;
                         Random rand = new Random();
@@ -472,9 +475,13 @@ public class Node  {
                     ptTransaction.setValidationResultSignatures(vrs);
                 }   
             }
-
+            this.endtimeQuorumAns = System.nanoTime();
+            long elapsedTimeQuorumans = this.endtimeQuorumAns - this.startTimeQuorumAns; // get the elapsed time in nanoseconds
+            double secondsQuorum = (double) elapsedTimeQuorumans / 1_000_000_000.0; // convert to seconds
+            System.out.println("Elapsed time for QC " + secondsQuorum + " seconds");
             if(DEBUG_LEVEL == 1) System.out.println("Node " + myAddress.getPort() + ": sendMempoolHashes invoked");
             
+                
             
             for (Address quorumAddress : quorum) {
                 if (!myAddress.equals(quorumAddress)) {
@@ -605,15 +612,15 @@ public class Node  {
                     quorumBlock = new PtBlock(blockTransactions,
                         getBlockHash(blockchain.getLast(), 0),
                                 blockchain.size(), answerSigs);
+                    this.endTimeBlockCon = System.nanoTime(); // end the timer
+                    long elapsedTime = this.endTimeBlockCon - this.startTimeBlockCon; // get the elapsed time in nanoseconds
+                    double seconds = (double) elapsedTime / 1_000_000_000.0; // convert to seconds
+                    System.out.println("Elapsed time for bc " + seconds + " seconds");
                 
 
             } catch (NoSuchAlgorithmException e) {
                 throw new RuntimeException(e);
             }
-            this.endTime = System.nanoTime(); // end the timer
-            long elapsedTime = this.endTime - this.startTime; // get the elapsed time in nanoseconds
-            double seconds = (double) elapsedTime / 1_000_000_000.0; // convert to seconds
-            System.out.println("Elapsed time: " + seconds + " seconds");
   
 
             sendSigOfBlockHash();
