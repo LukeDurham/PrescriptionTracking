@@ -13,7 +13,7 @@ done > inputs.txt
 
 
     # Use the generated inputs to call your Java program
-    java -cp . client.Client < inputs.txt
+    java -cp target/network-1.0-SNAPSHOT.jar client.Client < inputs.txt
 done
 
 

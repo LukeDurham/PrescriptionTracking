@@ -50,12 +50,16 @@ public class PtClient {
         
             System.out.println("Generating Transaction");
             System.out.println("Enter the Pharamacy"); //improve on this concept.
+            // String pharmacy = reader.readLine();
             String pharmacy = "CVS";
             System.out.println("Enter the medication name"); 
+            // String medication = reader.readLine();
             String medication = "Adderall";
             System.out.println("What is the dosage"); 
+            // String dosage = reader.readLine();
             String dosage = "20mg";
             System.out.println("How many?");
+            // int amount = Integer.parseInt(reader.readLine());
             int amount = 30; ///dosage
 
             Date date = new Date();

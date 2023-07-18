@@ -422,7 +422,7 @@ public class Node  {
             HashSet<String> keys = new HashSet<String>(mempool.keySet());
             Boolean foundAPatient = false;
             System.out.println("Node: " + myAddress.getPort() + "(Doctor): Sending mempool");
-
+            ArrayList<Address> quorum = deriveQuorum(blockchain.getLast(), 0);
             for(String hash : keys){
                 System.out.println("Node: " + myAddress.getPort() + "(Doctor): Processing keys");
 
@@ -430,8 +430,35 @@ public class Node  {
 
                 if(ptTransaction.getEvent().getAction().name().equals("Prescription")){
                     ArrayList<ValidationResultSignature> vrs = new ArrayList<>();
+                    for (Address quorumMeber: quorum )
+                    {
+                        int selectionAmount = 15;
+                        Random rand = new Random();
+                    
+                        while (selectionAmount > 0)
+                        {
+                            int randval = rand.nextInt(globalPeers.size());
+                            Address address = globalPeers.get(randval);
+                            if(address.getNodeType().name().equals("Patient")){
+                                foundAPatient = true;
+                                System.out.println("Node: " + myAddress.getPort() + "(Doctor): About to send out calc request to patient");
+                                Message reply = Messager.sendTwoWayMessage(address, new Message(Request.REQUEST_CALCULATION, hash), myAddress);
+                                System.out.println("Node: " + myAddress.getPort() + "(Doctor): Sent out calc request to patient");
 
-                    for(Address address : localPeers){
+                                if(reply.getRequest().name().equals("CALCULATION_COMPLETE")){
+                                    ValidationResultSignature vr = (ValidationResultSignature) reply.getMetadata();
+                                    vrs.add(vr);
+                                    System.out.println("Node: " + myAddress.getPort() + "(Doctor): Added vr to vrs from patient");
+                                }else{
+                                    System.out.println("Node: " + myAddress.getPort() + "(Doctor): Calc not complete?");
+                                }
+                                selectionAmount--;
+                            }
+                        }
+                    }
+                    
+                    /* 
+                    for(Address address : globalPeers){
                         if(address.getNodeType().name().equals("Patient")){
                             foundAPatient = true;
                             System.out.println("Node: " + myAddress.getPort() + "(Doctor): About to send out calc request to patient");
@@ -447,6 +474,7 @@ public class Node  {
                             }
                         }
                     }
+                    */
 
                     if(!foundAPatient)System.out.println("Node: " + myAddress.getPort() + "(Doctor): never found a patient");
                     ptTransaction.setValidationResultSignatures(vrs);
@@ -455,7 +483,6 @@ public class Node  {
 
             if(DEBUG_LEVEL == 1) System.out.println("Node " + myAddress.getPort() + ": sendMempoolHashes invoked");
             
-            ArrayList<Address> quorum = deriveQuorum(blockchain.getLast(), 0);
             
             for (Address quorumAddress : quorum) {
                 if (!myAddress.equals(quorumAddress)) {
@@ -979,7 +1006,7 @@ public class Node  {
                     if(transactionInList.getEvent().getAction().name().equals("Algorithm")){ // if its an algo
                         algorithms.add((Algorithm)transactionInList.getEvent()); // add to list
                         System.out.println("Node " + myAddress.getPort() + "(Patient): added algorithm");
-                        if(algorithms.size() == 3){ // if we have 3
+                        if(algorithms.size() >= 3){ // if we have 3
                             Random random = new Random();
                             algorithmSeed = algorithms.get(random.nextInt(3)).getAlgorithmSeed(); // pick 1
                             System.out.println("Node " + myAddress.getPort() + "(Patient): selected algorithm " + algorithmSeed);

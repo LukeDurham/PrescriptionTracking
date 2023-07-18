@@ -61,8 +61,8 @@ public class NetworkLauncher {
                 timedWaitDelay = Integer.parseInt(args[1]);
             }
 
-            int numberOfQuorumMembers = 3;
-            int numberOfMembers = 10;
+            int numberOfQuorumMembers = 5;
+            int numberOfMembers = 200;
 
             for (int i = startingPort; i < (startingPort + numberOfQuorumMembers); i++) {
                 nodes.add(new Node(NodeType.Doctor, use, i, maxConnections, minConnections, numNodes, quorumSize, minimumTransactions, debugLevel));
