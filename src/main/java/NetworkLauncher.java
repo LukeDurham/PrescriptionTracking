@@ -6,6 +6,7 @@ import node.communication.utils.Utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -17,6 +18,7 @@ import java.util.StringTokenizer;
 public class NetworkLauncher {
 
     NodeType nt;
+    static double time;
     /*private final int QUORUM, NUM_NODES;
     /* Make a list of the entirety of each node's address */
     private static final ArrayList<ArrayList<Address>> globalPeers = new ArrayList<ArrayList<Address>>();
@@ -42,6 +44,8 @@ public class NetworkLauncher {
             FileInputStream fileInputStream = new FileInputStream(configFilePath);
             Properties prop = new Properties();
             prop.load(fileInputStream);
+
+            
 
             int numNodes = Integer.parseInt(prop.getProperty("NUM_NODES"));
             int maxConnections = Integer.parseInt(prop.getProperty("MAX_CONNECTIONS"));
@@ -72,6 +76,7 @@ public class NetworkLauncher {
                 // System.out.println("Added Patient");
             }
 
+            
             
 
 
@@ -125,6 +130,8 @@ public class NetworkLauncher {
 
             NetworkLauncher n = new NetworkLauncher();
             n.startNetworkClients(globalPeers, nodes); // Begins network connections
+            
+            
 
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -134,6 +141,8 @@ public class NetworkLauncher {
             System.out.println("Error: args formatted incorrect" + e);
             System.out.println(usage);
         }
+        time = Node.getQuorumTime();
+        writeQuorumTime(time);
     }
 
     /* Gives each node a thread to start node connections */
@@ -143,6 +152,18 @@ public class NetworkLauncher {
             new NodeLauncher(nodes.get(i), globalPeers).start();
         }
     }
+
+    public static void writeQuorumTime(double time) {
+        try{
+            FileWriter writer = new FileWriter("/home/luke/Desktop/PrescriptionTracking/output.txt");
+            writer.write("Quorum took " + time + " seconds.");
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("error occurred with writing to file.");
+        }
+    }
+
+
 
     /**
      * Thread which is assigned to start a single node within the NetworkLaunchers managed nodes

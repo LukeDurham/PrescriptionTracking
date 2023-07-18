@@ -56,6 +56,7 @@ public class Node  {
     private long startTimeQuorumAns;
     private long endTimeBlockCon;
     private long endtimeQuorumAns;
+    private int count = 0;
 
     /**
      * Node constructor creates node and begins server socket to accept connections
@@ -429,56 +430,91 @@ public class Node  {
                     this.startTimeBlockCon = System.nanoTime(); // start the timer
                     for (Address quorumMeber: quorum)
                     {
-                        int selectionAmount = 3;
+                        int shards = allAlgorithms.length; //find how many algorithms that exists
                         Random rand = new Random();
-                    
-                        while (selectionAmount > 0)
+                        Address[] patients = new Address[shards];
+                        //Generate the array with the desired patients to solve this algorithm, lets worry about indexing the same patient later
+                        for (int i = 0; i < shards; i++)
                         {
+                            foundAPatient = true;
                             int randval = rand.nextInt(globalPeers.get(2).size());
-                            Address address = globalPeers.get(2).get(randval);
-                            foundAPatient = true;
-                            System.out.println("Node: " + myAddress.getPort() + "(Doctor): About to send out calc request to patient");
-                            Message reply = Messager.sendTwoWayMessage(address, new Message(Request.REQUEST_CALCULATION, hash), myAddress);
-                            System.out.println("Node: " + myAddress.getPort() + "(Doctor): Sent out calc request to patient");
+                            patients[i] = globalPeers.get(2).get(randval);
+                        }
+                        
+                        //assign them and make sure to loop
+                        for (int k = 0; k < shards; k++)
+                        {
+                            //shard out request to first patient for shard k
+                            System.out.println("Node: " + myAddress.getPort() + "(Doctor): About to send out calc request to patient " + (k + 1));
+                            Message reply = Messager.sendTwoWayMessage(patients[k], new Message(Request.REQUEST_CALCULATION, hash), myAddress);
+                            System.out.println("Node: " + myAddress.getPort() + "(Doctor): Sent out calc request to patient " + (k + 1));
                             if(reply.getRequest().name().equals("CALCULATION_COMPLETE")){
                                 ValidationResultSignature vr = (ValidationResultSignature) reply.getMetadata();
                                 vrs.add(vr);
-                                System.out.println("Node: " + myAddress.getPort() + "(Doctor): Added vr to vrs from patient");
-                            }else{
-                                System.out.println("Node: " + myAddress.getPort() + "(Doctor): Calc not complete?");
+                                System.out.println("Node: " + myAddress.getPort() + "(Doctor): Added vr to vrs from patient " + (k + 1));
                             }
-                            selectionAmount--;
-                            
+                            //if this isn't the last person in the array....
+                            if (k + 1 != shards)
+                            {
+                                //shard out request to second patient for shard k
+                                System.out.println("Node: " + myAddress.getPort() + "(Doctor): About to send out calc request to patient " + (k + 2));
+                                Message reply2 = Messager.sendTwoWayMessage(patients[k + 1], new Message(Request.REQUEST_CALCULATION, hash), myAddress);
+                                System.out.println("Node: " + myAddress.getPort() + "(Doctor): Sent out calc request to patient " + (k  + 2));
+                                if(reply2.getRequest().name().equals("CALCULATION_COMPLETE")){
+                                    ValidationResultSignature vr2 = (ValidationResultSignature) reply.getMetadata();
+                                    vrs.add(vr2);
+                                    System.out.println("Node: " + myAddress.getPort() + "(Doctor): Added vr to vrs from patient " + (k + 2));
+                                }
+                            }
+                        
+                            //This is the last shard in the array....
+                            else{
+                                    //shard out request to very first patient for shard k
+                                    System.out.println("LOOPING...");
+                                    System.out.println("Node: " + myAddress.getPort() + "(Doctor): About to send out calc request to patient 1");
+                                    Message replyLoop = Messager.sendTwoWayMessage(patients[0], new Message(Request.REQUEST_CALCULATION, hash), myAddress);
+                                    System.out.println("Node: " + myAddress.getPort() + "(Doctor): Sent out calc request to patient 1");
+                                    if(replyLoop.getRequest().name().equals("CALCULATION_COMPLETE")){
+                                        ValidationResultSignature vr2 = (ValidationResultSignature) replyLoop.getMetadata();
+                                        vrs.add(vr2);
+                                        System.out.println("Node: " + myAddress.getPort() + "(Doctor): Added vr to vrs from patient");
+                                    }
+                                }
                         }
-                    }
-                    
-                    /* 
-                    for(Address address : globalPeers){
-                        if(address.getNodeType().name().equals("Patient")){
-                            foundAPatient = true;
-                            System.out.println("Node: " + myAddress.getPort() + "(Doctor): About to send out calc request to patient");
-                            Message reply = Messager.sendTwoWayMessage(address, new Message(Request.REQUEST_CALCULATION, hash), myAddress);
-                            System.out.println("Node: " + myAddress.getPort() + "(Doctor): Sent out calc request to patient");
+                        
 
-                            if(reply.getRequest().name().equals("CALCULATION_COMPLETE")){
-                                ValidationResultSignature vr = (ValidationResultSignature) reply.getMetadata();
-                                vrs.add(vr);
-                                System.out.println("Node: " + myAddress.getPort() + "(Doctor): Added vr to vrs from patient");
-                            }else{
-                                System.out.println("Node: " + myAddress.getPort() + "(Doctor): Calc not complete?");
-                            }
-                        }
+                        // while (selectionAmount > 0)
+                        // {
+                        //     int randval = rand.nextInt(globalPeers.get(2).size());
+                        //     Address address = globalPeers.get(2).get(randval);
+                        //     foundAPatient = true;
+                        //     System.out.println("Node: " + myAddress.getPort() + "(Doctor): About to send out calc request to patient");
+                        //     Message reply = Messager.sendTwoWayMessage(address, new Message(Request.REQUEST_CALCULATION, hash), myAddress);
+                        //     System.out.println("Node: " + myAddress.getPort() + "(Doctor): Sent out calc request to patient");
+                        //     if(reply.getRequest().name().equals("CALCULATION_COMPLETE")){
+                        //         ValidationResultSignature vr = (ValidationResultSignature) reply.getMetadata();
+                        //         vrs.add(vr);
+                        //         System.out.println("Node: " + myAddress.getPort() + "(Doctor): Added vr to vrs from patient");
+                        //     }else{
+                        //         System.out.println("Node: " + myAddress.getPort() + "(Doctor): Calc not complete?");
+                        //     }
+                        //     selectionAmount--;    
+                        // }
                     }
-                    */
+
 
                     if(!foundAPatient)System.out.println("Node: " + myAddress.getPort() + "(Doctor): never found a patient");
                     ptTransaction.setValidationResultSignatures(vrs);
                 }   
             }
+            count++; 
             this.endtimeQuorumAns = System.nanoTime();
-            long elapsedTimeQuorumans = this.endtimeQuorumAns - this.startTimeQuorumAns; // get the elapsed time in nanoseconds
-            double secondsQuorum = (double) elapsedTimeQuorumans / 1_000_000_000.0; // convert to seconds
-            System.out.println("Elapsed time for QC " + secondsQuorum + " seconds");
+        
+            long elapsedTimeQuorum = this.endtimeQuorumAns - this.startTimeQuorumAns; // get the elapsed time in nanoseconds
+            double secondsQuorum = (double) elapsedTimeQuorum / 1_000_000_000.0; // convert to seconds
+            System.out.println("Q_TIME 2:" + secondsQuorum);
+                
+            
             if(DEBUG_LEVEL == 1) System.out.println("Node " + myAddress.getPort() + ": sendMempoolHashes invoked");
             
                 
@@ -492,9 +528,9 @@ public class Node  {
                             ArrayList<String> hashesRequested = (ArrayList<String>) messageReceived.getMetadata();
                             if(DEBUG_LEVEL == 1) System.out.println("Node " + myAddress.getPort() + ": sendMempoolHashes: requested trans: " + hashesRequested);
                             ArrayList<Transaction> transactionsToSend = new ArrayList<>();
-                            for(String hash : keys){
-                                if(mempool.containsKey(hash)){
-                                    transactionsToSend.add(mempool.get(hash));
+                            for(String hash2 : keys){
+                                if(mempool.containsKey(hash2)){
+                                    transactionsToSend.add(mempool.get(hash2));
                                 }else{
                                     if(DEBUG_LEVEL == 1) System.out.println("Node " + myAddress.getPort() + ": sendMempoolHashes: requested trans not in mempool. MP: " + mempool);
                                 }
@@ -1078,7 +1114,10 @@ public class Node  {
         }
     }
 
-
+    public static double getQuorumTime()
+    {
+        return Q_TIME;
+    }
     /**
      * Acceptor is a thread responsible for maintaining the server socket by
      * accepting incoming connection requests, and starting a new ServerConnection
@@ -1164,5 +1203,6 @@ public class Node  {
     public final String USE;
     private ArrayList<Address> quorum;
     private ArrayList<ArrayList<Address>> globalPeers;
-
+    public static double Q_TIME;
+    private int[] allAlgorithms = {1, 2, 3, 4, 5};
 }

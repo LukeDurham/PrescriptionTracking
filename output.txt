@@ -1,0 +1,1 @@
+Quorum took 0.0 seconds.
