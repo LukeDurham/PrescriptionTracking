@@ -10,6 +10,7 @@ import node.communication.ValidationResultSignature;
 import node.communication.messaging.Message;
 import node.communication.messaging.Messager;
 import node.communication.utils.DSA;
+import node.Node;
 import node.blockchain.defi.Account;
 import node.blockchain.defi.DefiTransaction;
 import node.blockchain.merkletree.MerkleTreeProof;
@@ -28,6 +29,7 @@ public class PtClient {
     String doctorName;
     private long startTime;
     private long endTime;
+    public ArrayList<Double> quorumTimeArray = new ArrayList<Double>();
 
 
     public PtClient(Object updateLock, BufferedReader reader, Address myAddress, ArrayList<Address> fullNodes) {
@@ -37,6 +39,27 @@ public class PtClient {
         this.fullNodes = fullNodes;
         doctorName = "John Doe";
     }
+
+    public void getAndAddQuorumTime()
+    {
+        double time = Node.getQuorumTime();
+        System.out.println("TIME TO BE ADDED :" + time);
+        quorumTimeArray.add(time);
+        return;
+    }
+
+    public static void printArray()
+    {
+
+    }
+
+    //we need to reset this array after every transaction somehow....
+    public void resetQuorumTimeArray()
+    {
+        quorumTimeArray = new ArrayList<Double>();
+    }
+
+    
 
     protected void submitPrescription() throws IOException {
         alertFullNode();
@@ -77,6 +100,7 @@ public class PtClient {
     protected void submitTransaction(PtTransaction transaction, Address address){
         this.startTime = System.nanoTime(); // start the timer
         try {
+            resetQuorumTimeArray(); //AARON is this where we reset the array????
             Socket s = new Socket(address.getHost(), address.getPort());
             OutputStream out = s.getOutputStream();
             ObjectOutputStream oout = new ObjectOutputStream(out);
@@ -102,7 +126,10 @@ public class PtClient {
         }
     }
 
+ 
+
     protected void readIncomingTransactions(ArrayList<PtTransaction> ptTransactions){
+
 
         for(PtTransaction ptTransaction : ptTransactions){
             int trueCounter = 0;
@@ -125,6 +152,10 @@ public class PtClient {
         this.endTime = System.nanoTime(); // end the timer
         long elapsedTime = this.endTime - this.startTime; // get the elapsed time in nanoseconds
         double seconds = (double) elapsedTime / 1_000_000_000.0; // convert to seconds
-        System.out.println("Elapsed time: " + seconds + " seconds");
+        System.out.println("Total time: " + seconds + " seconds"); //total time
+        // getAndAddQuorumTime(); //get all the quorum times for this transactionn
+        // System.out.println(quorumTimeArray.toString());
+        
     }
+    
 }

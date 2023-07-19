@@ -543,6 +543,7 @@ public class Node  {
             long elapsedTimeQuorum = this.endtimeQuorumAns - this.startTimeQuorumAns; // get the elapsed time in nanoseconds
             double secondsQuorum = (double) elapsedTimeQuorum / 1_000_000_000.0; // convert to seconds
             System.out.println("Q_TIME 2:" + secondsQuorum);
+
                 
             
             if(DEBUG_LEVEL == 1) System.out.println("Node " + myAddress.getPort() + ": sendMempoolHashes invoked");
@@ -577,7 +578,7 @@ public class Node  {
             }
         }
     }
-
+    
     //AARON add this getter to use it in another class
     public int getShard()
     {
@@ -688,7 +689,8 @@ public class Node  {
                     long elapsedTime = this.endTimeBlockCon - this.startTimeBlockCon; // get the elapsed time in nanoseconds
                     double seconds = (double) elapsedTime / 1_000_000_000.0; // convert to seconds
                     System.out.println("Elapsed time for bc " + seconds + " seconds");
-                
+                    setQuorumTime(seconds);
+                    
 
             } catch (NoSuchAlgorithmException e) {
                 throw new RuntimeException(e);
@@ -698,6 +700,18 @@ public class Node  {
             sendSigOfBlockHash();
         }
     }
+
+    public void setQuorumTime(double seconds)
+    {
+        quorumConsensusTime = seconds;
+        return;
+    }
+    public static double getQuorumTime()
+    {
+        return quorumConsensusTime;
+    }
+
+   
 
     public void sendSigOfBlockHash(){
         String blockHash;
@@ -1150,10 +1164,6 @@ public class Node  {
         }
     }
 
-    public static double getQuorumTime()
-    {
-        return Q_TIME;
-    }
     /**
      * Acceptor is a thread responsible for maintaining the server socket by
      * accepting incoming connection requests, and starting a new ServerConnection
@@ -1242,4 +1252,5 @@ public class Node  {
     public static double Q_TIME;
     public Integer[] allAlgorithms = {1, 2, 3, 4, 5, 6, 7};
     public static int shardNumber;
+    public static double quorumConsensusTime;
 }
