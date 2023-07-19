@@ -1,36 +1,58 @@
 package node;
 
-import node.blockchain.*;
-import node.blockchain.defi.DefiBlock;
-import node.blockchain.defi.DefiTransaction;
-import node.blockchain.defi.DefiTransactionValidator;
+import static node.communication.utils.DSA.generateDSAKeyPair;
+import static node.communication.utils.DSA.signHash;
+import static node.communication.utils.DSA.verifySignatureFromRegistry;
+import static node.communication.utils.DSA.writePubKeyToRegistry;
+import static node.communication.utils.Hashing.getBlockHash;
+import static node.communication.utils.Hashing.getSHAString;
+import static node.communication.utils.Utils.chainString;
+import static node.communication.utils.Utils.containsAddress;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+
+import node.blockchain.Block;
+import node.blockchain.BlockSkeleton;
+import node.blockchain.Transaction;
+import node.blockchain.TransactionValidator;
 import node.blockchain.merkletree.MerkleTree;
 import node.blockchain.prescription.PtBlock;
 import node.blockchain.prescription.PtTransaction;
 import node.blockchain.prescription.PtTransactionValidator;
 import node.blockchain.prescription.ValidationResult;
 import node.blockchain.prescription.Events.Algorithm;
-import node.communication.*;
+import node.communication.Address;
+import node.communication.BlockSignature;
+import node.communication.ClientConnection;
+import node.communication.ServerConnection;
+import node.communication.ValidationResultSignature;
 import node.communication.messaging.Message;
+import node.communication.messaging.Message.Request;
 import node.communication.messaging.Messager;
 import node.communication.messaging.MessagerPack;
-import node.communication.messaging.Message.Request;
 import node.communication.utils.DSA;
 import node.communication.utils.Hashing;
 import node.communication.utils.Utils;
-
-import java.io.*;
-import java.math.BigInteger;
-import java.net.*;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.util.*;
-
-import static node.communication.utils.DSA.*;
-import static node.communication.utils.Hashing.getBlockHash;
-import static node.communication.utils.Hashing.getSHAString;
-import static node.communication.utils.Utils.*;
 
 
 /**
@@ -391,11 +413,11 @@ public class Node  {
         }
     }
 
-
-    public void calculateEligibity(String hash, ObjectOutputStream oout, ObjectInputStream oin){
+    //AARON added a new parameter
+    public void calculateEligibity(String hash, ObjectOutputStream oout, ObjectInputStream oin, int shard){
         synchronized (memPoolLock){
             Algorithm algo = new Algorithm(algorithmSeed);
-            Boolean eligible = algo.runAlgorithm((PtTransaction)mempool.get(hash));
+            Boolean eligible = algo.runAlgorithm((PtTransaction)mempool.get(hash), shard);
             ValidationResult vr = new ValidationResult(eligible, algorithmSeed, hash);
             byte[] sig = DSA.signHash(vr.getStringForSig(), privateKey);
             
@@ -428,32 +450,55 @@ public class Node  {
                     ArrayList<ValidationResultSignature> vrs = new ArrayList<>();
                     this.startTimeQuorumAns = System.nanoTime();
                     this.startTimeBlockCon = System.nanoTime(); // start the timer
+                    //for each quorum member...
                     for (Address quorumMeber: quorum)
                     {
-                        int shards = allAlgorithms.length; //find how many algorithms that exists
-                        Random rand = new Random();
-                        Address[] patients = new Address[shards];
+                        //Consensus randomization generator for number of shards
+                        String memberString = getSHAString(quorumMeber.toString() + hash);
+                        BigInteger bigInt = new BigInteger(memberString, 16); // Converts the memberString in to a big Int
+                        bigInt = bigInt.mod(BigInteger.valueOf(NUM_NODES)); // we mod the big int I guess
+                        int seed = bigInt.intValue(); // This makes our seed
+                        Random rand = new Random(seed); //seed needed to have consensus among how many shards a doctor wants
+                    
+                        int shards = rand.nextInt(allAlgorithms.length -1) + 1; //generate a random amount of shards
+                        System.out.println("AMOUNT OF SHARDS DOCTOR WANTS TO RUN:" + shards);
+
+
+                        
+                        //Randomize the index array of all algorithms
+                        List<Integer> shardList = Arrays.asList(allAlgorithms);
+                        Collections.shuffle(shardList);
+                        shardList.toArray(allAlgorithms);
+                        System.out.println("Shard List: " + Arrays.toString(allAlgorithms));
+
                         //Generate the array with the desired patients to solve this algorithm, lets worry about indexing the same patient later
+                        Address[] patients = new Address[shards];
                         for (int i = 0; i < shards; i++)
                         {
                             foundAPatient = true;
-                            int randval = rand.nextInt(globalPeers.get(2).size());
-                            patients[i] = globalPeers.get(2).get(randval);
+                            int randval = rand.nextInt(globalPeers.get(2).size()); //get a random value from 0 to length of patient subarraylist
+                            patients[i] = globalPeers.get(2).get(randval); //set the array index to that patient
                         }
                         
                         //assign them and make sure to loop
                         for (int k = 0; k < shards; k++)
                         {
-                            //shard out request to first patient for shard k
+                            //the shardNumber we run will be the first index in the randomized array
+                            shardNumber = allAlgorithms[k];
+                            //shard out request to the patient k for shard k
                             System.out.println("Node: " + myAddress.getPort() + "(Doctor): About to send out calc request to patient " + (k + 1));
                             Message reply = Messager.sendTwoWayMessage(patients[k], new Message(Request.REQUEST_CALCULATION, hash), myAddress);
                             System.out.println("Node: " + myAddress.getPort() + "(Doctor): Sent out calc request to patient " + (k + 1));
+
                             if(reply.getRequest().name().equals("CALCULATION_COMPLETE")){
                                 ValidationResultSignature vr = (ValidationResultSignature) reply.getMetadata();
                                 vrs.add(vr);
                                 System.out.println("Node: " + myAddress.getPort() + "(Doctor): Added vr to vrs from patient " + (k + 1));
+                                System.out.println("Completed calculation for shard number : "  + shardNumber);
                             }
-                            //if this isn't the last person in the array....
+
+
+                            //if this isn't the last shard in the array....
                             if (k + 1 != shards)
                             {
                                 //shard out request to second patient for shard k
@@ -464,12 +509,13 @@ public class Node  {
                                     ValidationResultSignature vr2 = (ValidationResultSignature) reply.getMetadata();
                                     vrs.add(vr2);
                                     System.out.println("Node: " + myAddress.getPort() + "(Doctor): Added vr to vrs from patient " + (k + 2));
+                                    System.out.println("Completed calculation for shard number : "  + shardNumber);
                                 }
                             }
                         
                             //This is the last shard in the array....
                             else{
-                                    //shard out request to very first patient for shard k
+                                    //shard out request to very first patient for shard k ... (LOOP)
                                     System.out.println("LOOPING...");
                                     System.out.println("Node: " + myAddress.getPort() + "(Doctor): About to send out calc request to patient 1");
                                     Message replyLoop = Messager.sendTwoWayMessage(patients[0], new Message(Request.REQUEST_CALCULATION, hash), myAddress);
@@ -478,28 +524,12 @@ public class Node  {
                                         ValidationResultSignature vr2 = (ValidationResultSignature) replyLoop.getMetadata();
                                         vrs.add(vr2);
                                         System.out.println("Node: " + myAddress.getPort() + "(Doctor): Added vr to vrs from patient");
+                                        System.out.println("Completed calculation for shard number : "  + shardNumber + " and final shard finished.");
                                     }
                                 }
+                            
                         }
-                        
-
-                        // while (selectionAmount > 0)
-                        // {
-                        //     int randval = rand.nextInt(globalPeers.get(2).size());
-                        //     Address address = globalPeers.get(2).get(randval);
-                        //     foundAPatient = true;
-                        //     System.out.println("Node: " + myAddress.getPort() + "(Doctor): About to send out calc request to patient");
-                        //     Message reply = Messager.sendTwoWayMessage(address, new Message(Request.REQUEST_CALCULATION, hash), myAddress);
-                        //     System.out.println("Node: " + myAddress.getPort() + "(Doctor): Sent out calc request to patient");
-                        //     if(reply.getRequest().name().equals("CALCULATION_COMPLETE")){
-                        //         ValidationResultSignature vr = (ValidationResultSignature) reply.getMetadata();
-                        //         vrs.add(vr);
-                        //         System.out.println("Node: " + myAddress.getPort() + "(Doctor): Added vr to vrs from patient");
-                        //     }else{
-                        //         System.out.println("Node: " + myAddress.getPort() + "(Doctor): Calc not complete?");
-                        //     }
-                        //     selectionAmount--;    
-                        // }
+                        System.out.println("FINISHED ALGORITHM CALCULATION FOR DOCTOR ->: " + quorumMeber);
                     }
 
 
@@ -546,6 +576,12 @@ public class Node  {
                 }
             }
         }
+    }
+
+    //AARON add this getter to use it in another class
+    public int getShard()
+    {
+        return shardNumber;
     }
 
     public void receiveMempool(Set<String> keys, ObjectOutputStream oout, ObjectInputStream oin) {
@@ -1204,5 +1240,6 @@ public class Node  {
     private ArrayList<Address> quorum;
     private ArrayList<ArrayList<Address>> globalPeers;
     public static double Q_TIME;
-    private int[] allAlgorithms = {1, 2, 3, 4, 5};
+    public Integer[] allAlgorithms = {1, 2, 3, 4, 5, 6, 7};
+    public static int shardNumber;
 }

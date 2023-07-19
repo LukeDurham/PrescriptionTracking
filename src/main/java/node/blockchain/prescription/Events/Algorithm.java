@@ -40,7 +40,68 @@ public class Algorithm extends Event{
             return false;
         }
     }
+    //O(1) method
+    public boolean getGPA(PtTransaction transaction)
+    {
+        Random random = new Random();
+        int flip = random.nextInt(2);
+        if(flip == 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
 
+    //O(1) method
+    public boolean getRating(PtTransaction transaction)
+    {
+        Random random = new Random();
+        int flip = random.nextInt(2);
+        if(flip == 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    //O(1) method
+    public boolean getSchool(PtTransaction transaction)
+    {
+        Random random = new Random();
+        int flip = random.nextInt(2);
+        if(flip == 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    //O(1) method
+    public boolean getField(PtTransaction transaction)
+    {
+        Random random = new Random();
+        int flip = random.nextInt(2);
+        if(flip == 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+
+    //O(n) method
+    public boolean getHistory(/* some data structure of all doctor prescriptions */)
+    {
+        Random random = new Random();
+        int flip = random.nextInt(2);
+        if(flip == 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    
+    //O(n)
     public boolean getNumberOfPrescriptions(/* some data structure of all doctor prescriptions */)
     {
         Random random = new Random();
@@ -56,21 +117,46 @@ public class Algorithm extends Event{
 
     
 
-    public boolean runAlgorithm(PtTransaction transaction /*, int shard */){
+    public boolean runAlgorithm(PtTransaction transaction , int shard){
         //Random random = new Random(algorithmSeed);
-        int theAlgorithm = 10;
-        if (theAlgorithm == 0)
-        {
+        switch (shard) {
+        case 1:
+            System.out.println("Working on getAge function");
             return getAge(transaction);
-        }
-        else if (theAlgorithm == 1)
+        
+        case 2: 
         {
+            System.out.println("Working on getExperience function");
             return getExperience(transaction);
         }
-        else if (theAlgorithm == 2)
+        case 3:
         {
+            System.out.println("Working on getGPA function");
+            return getGPA(transaction);
+        }
+        case 4:
+        {
+            System.out.println("Working on getSchool function");
+            return getSchool(transaction);
+        }
+        case 5:
+        {
+            System.out.println("Working on getField function");
+            return getField(transaction);
+        }
+        case 6:
+        {
+            System.out.println("Working on getHistory function");
+            return getHistory();
+        }
+        case 7:
+        {
+            System.out.println("Working on getNumberOfPrescriptions function");
             return getNumberOfPrescriptions();
         }
+
+        default:
+        System.out.println("RUNNING DEFAULT... should not happen.");
         Random random2 = new Random();
         int flip = random2.nextInt(2);
         if(flip == 0){
@@ -79,4 +165,5 @@ public class Algorithm extends Event{
             return false;
         }
     }
+}
 }
