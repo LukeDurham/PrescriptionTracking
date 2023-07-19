@@ -155,13 +155,12 @@ public class Client {
             switch(input){
 
                 /* Add account (or something similar depends on use) */
-                case("a"):
-                    if(use.equals("Defi")) defiClient.addAccount();
+                case("s"):
+                    if(use.equals("Prescription")) ptClient.submitSearch();
                     break;
 
                 /* Submit Transaction */
                 case("t"):
-                    if(use.equals("Defi")) defiClient.submitTransaction();
                     if(use.equals("Prescription")) ptClient.submitPrescription();
                     break;
 
@@ -169,7 +168,6 @@ public class Client {
                 case("p"):
                     if(use.equals("Defi")) defiClient.printAccounts();
                     break;
-
                 /* Print the specific usage / commmands */
                 case("h"):
                     if(use.equals("Defi")) defiClient.printUsage();
@@ -233,7 +231,8 @@ public class Client {
                             defiClient.updateAccounts(mtp);
                         }else if(use.equals("Prescription")){
                             ArrayList<PtTransaction> ptTransactions = (ArrayList<PtTransaction>) incomingMessage.getMetadata();
-                            ptClient.readIncomingTransactions(ptTransactions);
+                            // ptClient.readIncomingTransactions(ptTransactions);
+                            ptClient.submitSearch();
                         }
                         
                     }

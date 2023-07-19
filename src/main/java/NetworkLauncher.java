@@ -60,14 +60,16 @@ public class NetworkLauncher {
             if (args.length > 0 && args[0].equals("-t")) {
                 timedWaitDelay = Integer.parseInt(args[1]);
             }
+            NodeType doctor = NodeType.Doctor;
+            NodeType patient = NodeType.Patient;
 
             for (int i = startingPort; i < (startingPort) + (numNodes/2); i++) {
-                nodes.add(new Node(NodeType.Doctor, use, i, maxConnections, minConnections, numNodes, quorumSize, minimumTransactions, debugLevel));
+                nodes.add(new Node(doctor, use, i, maxConnections, minConnections, numNodes, quorumSize, minimumTransactions, debugLevel));
                 System.out.println("Added Doctor");
             }
 
             for (int i = (startingPort) + (numNodes/2); i < startingPort + numNodes; i++) {
-                nodes.add(new Node(NodeType.Patient, use, i, maxConnections, minConnections, numNodes, quorumSize, minimumTransactions, debugLevel));
+                nodes.add(new Node(patient, use, i, maxConnections, minConnections, numNodes, quorumSize, minimumTransactions, debugLevel));
                 System.out.println("Added Patient");
             }
 

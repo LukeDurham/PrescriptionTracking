@@ -10,6 +10,7 @@ import node.communication.ValidationResultSignature;
 import node.communication.messaging.Message;
 import node.communication.messaging.Messager;
 import node.communication.utils.DSA;
+import node.NodeType;
 import node.blockchain.defi.Account;
 import node.blockchain.defi.DefiTransaction;
 import node.blockchain.merkletree.MerkleTreeProof;
@@ -62,6 +63,46 @@ public class PtClient {
         System.out.println("PTClient submitted prescription");
 
     }
+
+    protected void submitSearch() throws IOException {
+        alertFullNode();
+
+        System.out.println("Search Doctor Node");
+        for(Address test: fullNodes) {
+            NodeType nt = test.getNodeType();
+            System.out.println(nt);
+        }
+        // System.out.println("Enter the Doctor address"); //improve on this concept.
+        // String doctorNodeAddress = reader.readLine();
+        // int portNumber = Integer.parseInt(doctorNodeAddress);
+
+        // for(Address doc : fullNodes) {
+        //     int result = doc.getPort();
+        //      if(result == portNumber) {
+        //         System.out.println("found");
+        //      } else {
+        //         System.out.println("couldn't find doctor at port " + portNumber);
+        //      }
+        // }
+
+
+
+        
+    }
+
+    // protected void readDoctorTransactions(ArrayList<PtTransaction> ptTransactions, String doctorNodeAddress) {
+    //     int portNumber;
+    //     portNumber = Integer.parseInt(doctorNodeAddress);
+    //     for(Address specificAddress :  fullNodes){
+    //         if(specificAddress.getPort() == portNumber){
+    //             System.out.println(specificAddress.toString());
+    //             // for(PtTransaction ptTransaction : ptTransactions){
+
+    //             // }
+    //         }
+    //     }
+        
+    // }
 
     protected void submitTransaction(PtTransaction transaction, Address address){
         try {
