@@ -2,7 +2,7 @@ pharmacies=("Walgreens" "Walmart" "CVS")
 medications=("Adderall" "Xanax" "Fentanyl" "Ibuprofen" "Aleve")
 dosageAmount=(10 20 30 40 50 60)
 
-for i in {1..100}
+for i in {1..20}
 do
     echo "t"
     echo ${pharmacies[$((RANDOM % 3))]}

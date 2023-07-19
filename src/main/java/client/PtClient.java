@@ -28,6 +28,7 @@ public class PtClient {
     String doctorName;
     private long startTime;
     private long endTime;
+    int counter = 0;
 
 
     public PtClient(Object updateLock, BufferedReader reader, Address myAddress, ArrayList<Address> fullNodes) {
@@ -40,6 +41,7 @@ public class PtClient {
 
     protected void submitPrescription() throws IOException {
         alertFullNode();
+
         // int transactionCounter = 0;
 
         // private Date date;
@@ -63,11 +65,12 @@ public class PtClient {
             int amount = 30; ///dosage
 
             Date date = new Date();
+            
 
             submitTransaction(new PtTransaction(
-            new Prescription("TestPatient", pharmacy, doctorName, medication, dosage, new Date(date.getTime()), 
+            new Prescription("TestPatient" + counter, pharmacy, doctorName, medication, dosage, new Date(date.getTime()), 
             amount), String.valueOf(System.currentTimeMillis())), fullNodes.get(0));
-
+            counter++;
                 // transactionCounter++;
 
             System.out.println("PTClient submitted prescription");
