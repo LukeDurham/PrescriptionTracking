@@ -224,13 +224,9 @@ public class Client {
                     Message incomingMessage = (Message) oin.readObject();
                     
                     if(incomingMessage.getRequest().name().equals("ALERT_WALLET")){
-                        if(use.equals("Defi")){
-                            MerkleTreeProof mtp = (MerkleTreeProof) incomingMessage.getMetadata();
-                            defiClient.updateAccounts(mtp);
-                        }else if(use.equals("Prescription")){
-                            ArrayList<PtTransaction> ptTransactions = (ArrayList<PtTransaction>) incomingMessage.getMetadata();
-                            ptClient.readIncomingTransactions(ptTransactions);
-                        }
+                        ArrayList<PtTransaction> ptTransactions = (ArrayList<PtTransaction>) incomingMessage.getMetadata();
+                        ptClient.readIncomingTransactions(ptTransactions);
+                        
                         
                     }
                 } catch (IOException e) {

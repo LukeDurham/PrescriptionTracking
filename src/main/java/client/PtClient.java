@@ -40,6 +40,7 @@ public class PtClient {
 
     protected void submitPrescription() throws IOException {
         alertFullNode();
+        BlockConstructionTime();
         // int transactionCounter = 0;
 
         // private Date date;
@@ -102,7 +103,17 @@ public class PtClient {
         }
     }
 
+     protected void BlockConstructionTime() throws IOException{
+        synchronized(updateLock){
+            Messager.sendOneWayMessage(new Address(fullNodes.get(0).getPort(), fullNodes.get(0).getHost(), null), 
+            new Message(Message.Request.REQUEST_BLOCK_CONSTRUCTION_TIME, myAddress), myAddress);
+
+            System.out.println("PTClient getting Construction time");
+        }
+    }
+
     protected void readIncomingTransactions(ArrayList<PtTransaction> ptTransactions){
+
 
         for(PtTransaction ptTransaction : ptTransactions){
             int trueCounter = 0;
@@ -125,6 +136,6 @@ public class PtClient {
         this.endTime = System.nanoTime(); // end the timer
         long elapsedTime = this.endTime - this.startTime; // get the elapsed time in nanoseconds
         double seconds = (double) elapsedTime / 1_000_000_000.0; // convert to seconds
-        System.out.println("Elapsed time: " + seconds + " seconds");
+        System.out.println("Total time: " + seconds + " seconds"); //total time
     }
 }
