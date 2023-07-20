@@ -63,11 +63,14 @@ public class PtClient {
         amount), String.valueOf(System.currentTimeMillis())), fullNodes.get(0));
         long startTime = System.nanoTime(); // start the timer
         double seconds = startTime / 1_000_000_000.0;
+        int quourumSize = 8;
 
         try {
             FileWriter writer = new FileWriter(fileName);
             // Write column names
             writer.append("PatientUID ");
+            writer.append(',');
+            writer.append("Quorum Size ");
             writer.append(',');
             writer.append("Start Time ");
             writer.append(',');
@@ -75,6 +78,8 @@ public class PtClient {
             writer.append(',');
             writer.append("\n");
             writer.append("Test Patient ");
+            writer.append(',');
+            writer.append(String.valueOf(quourumSize));
             writer.append(',');
             writer.append(String.valueOf(seconds) + " ");
             writer.append(',');

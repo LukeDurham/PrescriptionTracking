@@ -1,2 +1,2 @@
-PatientUID ,Start Time ,End Time ,
-Test Patient ,2285.291489261 ,2289.890782626
+PatientUID ,Quorum Size ,Start Time ,End Time ,
+Test Patient ,3,9178.60133252 ,9184.064562927
