@@ -14,6 +14,7 @@ import node.blockchain.defi.Account;
 import node.blockchain.defi.DefiTransaction;
 import node.blockchain.merkletree.MerkleTreeProof;
 
+
 // How would we interpret account in our use case? Make sure peyton addresses this. import node.blockchain.defi.Account; 
 import node.blockchain.prescription.PtTransaction;
 import node.blockchain.prescription.Events.Prescription;
@@ -26,6 +27,7 @@ public class PtClient {
     Address myAddress;
     ArrayList<Address> fullNodes; //list of Doctors addresses in the quorum 
     String doctorName;
+    String fileName = "transactionperminute.csv";
 
 
     public PtClient(Object updateLock, BufferedReader reader, Address myAddress, ArrayList<Address> fullNodes) {
@@ -60,6 +62,34 @@ public class PtClient {
         new Prescription("TestPatient", pharmacy, doctorName, medication, dosage, new Date(date.getTime()), 
         amount), String.valueOf(System.currentTimeMillis())), fullNodes.get(0));
         long startTime = System.nanoTime(); // start the timer
+        double seconds = startTime / 1_000_000_000.0;
+
+        try {
+            FileWriter writer = new FileWriter(fileName);
+            // Write column names
+            writer.append("PatientUID ");
+            writer.append(',');
+            writer.append("Start Time ");
+            writer.append(',');
+            writer.append("End Time ");
+            writer.append(',');
+            writer.append("\n");
+            writer.append("Test Patient ");
+            writer.append(',');
+            writer.append(String.valueOf(seconds) + " ");
+            writer.append(',');
+
+            writer.flush();
+            writer.close();
+
+            System.out.println("CSV file with headers created successfully...");
+
+        } catch (IOException e) {
+            System.out.println("Error occurred while creating CSV...");
+            e.printStackTrace();
+
+        }
+
 
         // transactionCounter++;
 
@@ -97,11 +127,27 @@ public class PtClient {
 
     protected void readIncomingTransactions(ArrayList<PtTransaction> ptTransactions){
         long endTime = System.nanoTime(); // end the timer
-
+        double seconds = endTime / 1_000_000_000.0;
+    
+        try {
+            // Open the FileWriter in append mode (true)
+            FileWriter writer = new FileWriter(fileName, true);
+    
+            // Write the elapsed time in seconds to a new line
+            writer.append(String.valueOf(seconds)).append("\n");
+    
+            writer.flush();
+            writer.close();
+    
+        } catch (IOException e) {
+            System.out.println("Error occurred while updating CSV...");
+            e.printStackTrace();
+        }
+    
         for(PtTransaction ptTransaction : ptTransactions){
             int trueCounter = 0;
             int falseCounter = 0;
-
+    
             for(ValidationResultSignature vrs : ptTransaction.getValidationResultSignatures()){
                 if(vrs.getVr().isValid()){
                     trueCounter++;
@@ -109,7 +155,7 @@ public class PtClient {
                     falseCounter++;
                 }
             }
-
+    
             if(trueCounter > falseCounter){
                 System.out.println("TX " + ptTransaction.getUID() + " Valid. Yes votes: " + trueCounter + ". No votes: " + falseCounter);
             }else{
@@ -117,4 +163,5 @@ public class PtClient {
             }
         }
     }
+    
 }
