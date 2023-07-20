@@ -10,6 +10,7 @@ import node.communication.ValidationResultSignature;
 import node.communication.messaging.Message;
 import node.communication.messaging.Messager;
 import node.communication.utils.DSA;
+import node.NodeType;
 import node.blockchain.defi.Account;
 import node.blockchain.defi.DefiTransaction;
 import node.blockchain.merkletree.MerkleTreeProof;
@@ -29,6 +30,7 @@ public class PtClient {
     private long startTime;
     private long endTime;
     int counter = 0;
+    NodeType nodetype;
 
 
     public PtClient(Object updateLock, BufferedReader reader, Address myAddress, ArrayList<Address> fullNodes) {
@@ -129,5 +131,6 @@ public class PtClient {
         long elapsedTime = this.endTime - this.startTime; // get the elapsed time in nanoseconds
         double seconds = (double) elapsedTime / 1_000_000_000.0; // convert to seconds
         System.out.println("Elapsed time: " + seconds + " seconds");
+        System.out.println(fullNodes.toString());
     }
 }
