@@ -687,7 +687,6 @@ public class Node  {
                     this.endTimeBlockCon = System.nanoTime(); // end the timer
                     long elapsedTime = this.endTimeBlockCon - this.startTimeBlockCon; // get the elapsed time in nanoseconds
                     seconds = (double) elapsedTime / 1_000_000_000.0; // convert to seconds
-                    setBlockConstructTime(seconds);
                     
                 
 
@@ -700,28 +699,6 @@ public class Node  {
         }
     }
 
-    
-    public void sendBlockConstructionTime(ObjectOutputStream oout, ObjectInputStream oin, double seconds) {
-        synchronized (memPoolLock){
-             try {
-                oout.writeObject(new Message(Request.REQUEST_BLOCK_CONSTRUCTION_TIME, seconds));
-                oout.flush();
-                System.out.println("Node " +myAddress.getPort() + ": Sent construction time " + seconds);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void setBlockConstructTime(double seconds) {
-        this.seconds = seconds;
-        return;
-    }
-    public double getBlockConstructTime() {
-
-        return this.seconds;
-    }
 
 
     public void sendSigOfBlockHash(){

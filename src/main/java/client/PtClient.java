@@ -26,8 +26,6 @@ public class PtClient {
     Address myAddress;
     ArrayList<Address> fullNodes; //list of Doctors addresses in the quorum 
     String doctorName;
-    private long startTime;
-    private long endTime;
 
 
     public PtClient(Object updateLock, BufferedReader reader, Address myAddress, ArrayList<Address> fullNodes) {
@@ -40,43 +38,36 @@ public class PtClient {
 
     protected void submitPrescription() throws IOException {
         alertFullNode();
-        BlockConstructionTime();
         // int transactionCounter = 0;
-
-        // private Date date;
-        // private int amount;
-        // private String medication;
-        // private String doctorName;
-        // while(transactionCounter < 100);
         
-            System.out.println("Generating Transaction");
-            System.out.println("Enter the Pharamacy"); //improve on this concept.
-            // String pharmacy = reader.readLine();
-            String pharmacy = "CVS";
-            System.out.println("Enter the medication name"); 
-            // String medication = reader.readLine();
-            String medication = "Adderall";
-            System.out.println("What is the dosage"); 
-            // String dosage = reader.readLine();
-            String dosage = "20mg";
-            System.out.println("How many?");
-            // int amount = Integer.parseInt(reader.readLine());
-            int amount = 30; ///dosage
+        System.out.println("Generating Transaction");
+        System.out.println("Enter the Pharamacy"); //improve on this concept.
+        // String pharmacy = reader.readLine();
+        String pharmacy = "CVS";
+        System.out.println("Enter the medication name"); 
+        // String medication = reader.readLine();
+        String medication = "Adderall";
+        System.out.println("What is the dosage"); 
+        // String dosage = reader.readLine();
+        String dosage = "20mg";
+        System.out.println("How many?");
+        // int amount = Integer.parseInt(reader.readLine());
+        int amount = 30; ///dosage
 
-            Date date = new Date();
+        Date date = new Date();
 
-            submitTransaction(new PtTransaction(
-            new Prescription("TestPatient", pharmacy, doctorName, medication, dosage, new Date(date.getTime()), 
-            amount), String.valueOf(System.currentTimeMillis())), fullNodes.get(0));
+        submitTransaction(new PtTransaction(
+        new Prescription("TestPatient", pharmacy, doctorName, medication, dosage, new Date(date.getTime()), 
+        amount), String.valueOf(System.currentTimeMillis())), fullNodes.get(0));
+        long startTime = System.nanoTime(); // start the timer
 
-                // transactionCounter++;
+        // transactionCounter++;
 
-            System.out.println("PTClient submitted prescription");
+        System.out.println("PTClient submitted prescription");
 
     }
 
     protected void submitTransaction(PtTransaction transaction, Address address){
-        this.startTime = System.nanoTime(); // start the timer
         try {
             Socket s = new Socket(address.getHost(), address.getPort());
             OutputStream out = s.getOutputStream();
@@ -103,17 +94,9 @@ public class PtClient {
         }
     }
 
-     protected void BlockConstructionTime() throws IOException{
-        synchronized(updateLock){
-            Messager.sendOneWayMessage(new Address(fullNodes.get(0).getPort(), fullNodes.get(0).getHost(), null), 
-            new Message(Message.Request.REQUEST_BLOCK_CONSTRUCTION_TIME, myAddress), myAddress);
-
-            System.out.println("PTClient getting Construction time");
-        }
-    }
 
     protected void readIncomingTransactions(ArrayList<PtTransaction> ptTransactions){
-
+        long endTime = System.nanoTime(); // end the timer
 
         for(PtTransaction ptTransaction : ptTransactions){
             int trueCounter = 0;
@@ -133,9 +116,5 @@ public class PtClient {
                 System.out.println("TX " + ptTransaction.getUID() + " Invalid. Yes votes: " + trueCounter + ". No votes: " + falseCounter);
             }
         }
-        this.endTime = System.nanoTime(); // end the timer
-        long elapsedTime = this.endTime - this.startTime; // get the elapsed time in nanoseconds
-        double seconds = (double) elapsedTime / 1_000_000_000.0; // convert to seconds
-        System.out.println("Total time: " + seconds + " seconds"); //total time
     }
 }

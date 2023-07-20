@@ -106,10 +106,6 @@ public class ServerConnection extends Thread {
                 String hash = (String) incomingMessage.getMetadata();
                 node.calculateEligibity(hash, oout, oin, shard);
                 break;
-            case REQUEST_BLOCK_CONSTRUCTION_TIME:
-                double blockConstructionTime = (double) node.getBlockConstructTime();
-                node.sendBlockConstructionTime(oout, oin, blockConstructionTime);
-                break;
 
         }
     }
