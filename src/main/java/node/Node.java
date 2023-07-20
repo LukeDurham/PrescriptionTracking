@@ -9,6 +9,8 @@ import static node.communication.utils.Hashing.getSHAString;
 import static node.communication.utils.Utils.chainString;
 import static node.communication.utils.Utils.containsAddress;
 
+import java.io.FileWriter;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -540,10 +542,40 @@ public class Node  {
             count++; 
             this.endtimeQuorumAns = System.nanoTime();
         
-            long elapsedTimeQuorum = this.endtimeQuorumAns - this.startTimeQuorumAns; // get the elapsed time in nanoseconds
-            double secondsQuorum = (double) elapsedTimeQuorum / 1_000_000_000.0; // convert to seconds
-            System.out.println("Q_TIME 2:" + secondsQuorum);
-                
+            
+            System.out.println("Q_TIMECOUNT: " + quorumConsensusTimeCount);
+            if (initializingAlgorithms == true)
+            {
+                initializingAlgorithms = false;
+            }
+            else
+            {
+                if (quorumConsensusTimeCount == quorum.size() - 1)
+                {
+                    try
+                    {
+                        long elapsedTimeQuorum = this.endtimeQuorumAns - this.startTimeQuorumAns; // get the elapsed time in nanoseconds
+                        double secondsQuorum = (double) elapsedTimeQuorum / 1_000_000_000.0; // convert to seconds
+                        
+                        FileWriter quorumTimeFileWriter = new FileWriter("quorumTimeFile.txt" , true);
+                        quorumTimeFileWriter.write(secondsQuorum + "\n");
+                        quorumTimeFileWriter.flush();
+                        quorumTimeFileWriter.close();
+                        quorumConsensusTimeCount = 0;
+                        System.out.println("WRITING TO FILE");
+                    }
+                    catch (IOException e)
+                    {
+                        throw new IllegalArgumentException("NOT WRITING SO BAD");
+                    }
+                }
+                else
+                {
+                    quorumConsensusTimeCount++;
+                    System.out.println("TIME COUNTER..." + quorumConsensusTimeCount);
+                }
+            }
+
             
             if(DEBUG_LEVEL == 1) System.out.println("Node " + myAddress.getPort() + ": sendMempoolHashes invoked");
             
@@ -687,7 +719,24 @@ public class Node  {
                     this.endTimeBlockCon = System.nanoTime(); // end the timer
                     long elapsedTime = this.endTimeBlockCon - this.startTimeBlockCon; // get the elapsed time in nanoseconds
                     seconds = (double) elapsedTime / 1_000_000_000.0; // convert to seconds
-                    
+
+                    //if i havent recieved it yet
+                    if (blockConstructionTimeCount == 0)
+                    {
+                  
+                        
+                        //put LOG FILES HERE
+                        blockConstructionTimeCount++;
+                    }
+                    //if i revieve it from everyone....
+                    else if (blockConstructionTimeCount == quorum.size())
+                    {
+                        blockConstructionTimeCount = 0;
+                    }
+                    //still revieving until i get everyone to reset
+                    else{
+                        blockConstructionTimeCount++;
+                    }
                 
 
             } catch (NoSuchAlgorithmException e) {
@@ -1245,4 +1294,8 @@ public class Node  {
     public Integer[] allAlgorithms = {1, 2, 3, 4, 5, 6, 7};
     public static int shardNumber;
     public double seconds;
+    public int quorumConsensusTimeCount = -1;
+    public boolean initializingAlgorithms = true;
+    public int blockConstructionTimeCount;
+    
 }
