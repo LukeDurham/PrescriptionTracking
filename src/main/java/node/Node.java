@@ -76,10 +76,6 @@ import node.communication.utils.Utils;
  * Beware, any methods below are a WIP
  */
 public class Node  {
-    private long startTimeBlockCon;
-    private long startTimeQuorumAns;
-    private long endTimeBlockCon;
-    private long endtimeQuorumAns;
     private int count = 0;
 
     /**
@@ -318,6 +314,36 @@ public class Node  {
     public void sendQuorumReady(){
         //state = 1;
         stateChangeRequest(1);
+        System.out.println("STARTING QUORUM:" + System.currentTimeMillis());
+            try
+            {
+
+                FileWriter quorumTimeFileWriter = new FileWriter("quorumTimeFile.csv" , true);
+                quorumTimeFileWriter.write("QS: " + System.currentTimeMillis() + "\n");
+                quorumTimeFileWriter.append(',');
+                quorumTimeFileWriter.flush();
+                quorumTimeFileWriter.close();
+                System.out.println("WRITING TO FILE");
+            }
+            catch (IOException e)
+            {
+                throw new IllegalArgumentException("NOT WRITING SO BAD");
+            }
+
+        System.out.println("STARTING BLOCK:" + System.currentTimeMillis());
+        try
+        {
+            FileWriter quorumTimeFileWriter = new FileWriter("blockTimeFile.csv" , true);
+            quorumTimeFileWriter.write("SB: " + System.currentTimeMillis() + "\n");
+            quorumTimeFileWriter.append(',');
+            quorumTimeFileWriter.flush();
+            quorumTimeFileWriter.close();
+        }
+        catch (IOException e)
+        {
+                throw new IllegalArgumentException("NOT WRITING SO BAD");
+        }
+
         quorumSigs = new ArrayList<>();
         Block currentBlock = blockchain.getLast();
         
@@ -450,8 +476,6 @@ public class Node  {
 
                 if(ptTransaction.getEvent().getAction().name().equals("Prescription")){
                     ArrayList<ValidationResultSignature> vrs = new ArrayList<>();
-                    this.startTimeQuorumAns = System.nanoTime();
-                    this.startTimeBlockCon = System.nanoTime(); // start the timer
                     //for each quorum member...
                     for (Address quorumMeber: quorum)
                     {
@@ -540,41 +564,7 @@ public class Node  {
                 }   
             }
             count++; 
-            this.endtimeQuorumAns = System.nanoTime();
-        
-            
-            System.out.println("Q_TIMECOUNT: " + quorumConsensusTimeCount);
-            if (initializingAlgorithms == true)
-            {
-                initializingAlgorithms = false;
-            }
-            else
-            {
-                if (quorumConsensusTimeCount == quorum.size() - 1)
-                {
-                    try
-                    {
-                        long elapsedTimeQuorum = this.endtimeQuorumAns - this.startTimeQuorumAns; // get the elapsed time in nanoseconds
-                        double secondsQuorum = (double) elapsedTimeQuorum / 1_000_000_000.0; // convert to seconds
-                        
-                        FileWriter quorumTimeFileWriter = new FileWriter("quorumTimeFile.txt" , true);
-                        quorumTimeFileWriter.write(secondsQuorum + "\n");
-                        quorumTimeFileWriter.flush();
-                        quorumTimeFileWriter.close();
-                        quorumConsensusTimeCount = 0;
-                        System.out.println("WRITING TO FILE");
-                    }
-                    catch (IOException e)
-                    {
-                        throw new IllegalArgumentException("NOT WRITING SO BAD");
-                    }
-                }
-                else
-                {
-                    quorumConsensusTimeCount++;
-                    System.out.println("TIME COUNTER..." + quorumConsensusTimeCount);
-                }
-            }
+
 
             
             if(DEBUG_LEVEL == 1) System.out.println("Node " + myAddress.getPort() + ": sendMempoolHashes invoked");
@@ -716,26 +706,20 @@ public class Node  {
                     quorumBlock = new PtBlock(blockTransactions,
                         getBlockHash(blockchain.getLast(), 0),
                                 blockchain.size(), answerSigs);
-                    this.endTimeBlockCon = System.nanoTime(); // end the timer
-                    long elapsedTime = this.endTimeBlockCon - this.startTimeBlockCon; // get the elapsed time in nanoseconds
-                    seconds = (double) elapsedTime / 1_000_000_000.0; // convert to seconds
 
-                    //if i havent recieved it yet
-                    if (blockConstructionTimeCount == 0)
+                    System.out.println("CONSTRUCTING BLOCK:" + System.currentTimeMillis());
+                    try
                     {
-                  
-                        
-                        //put LOG FILES HERE
-                        blockConstructionTimeCount++;
+                        FileWriter quorumTimeFileWriter = new FileWriter("blockTimeFile.csv" , true);
+                        quorumTimeFileWriter.write("CB: " + System.currentTimeMillis() + "\n");
+                        quorumTimeFileWriter.append(",");
+                        quorumTimeFileWriter.flush();
+                        quorumTimeFileWriter.close();
+
                     }
-                    //if i revieve it from everyone....
-                    else if (blockConstructionTimeCount == quorum.size())
+                    catch (IOException e)
                     {
-                        blockConstructionTimeCount = 0;
-                    }
-                    //still revieving until i get everyone to reset
-                    else{
-                        blockConstructionTimeCount++;
+                        throw new IllegalArgumentException("NOT WRITING SO BAD");
                     }
                 
 
@@ -878,6 +862,20 @@ public class Node  {
             } 
             hashVotes.clear();
             quorumSigs.clear();
+            System.out.println("ENDING QUORUM:" + System.currentTimeMillis());
+            try
+            {
+                FileWriter quorumTimeFileWriter = new FileWriter("quorumTimeFile.csv" , true);
+                quorumTimeFileWriter.write("QE: " + System.currentTimeMillis() + "\n");
+                quorumTimeFileWriter.append(',');
+                quorumTimeFileWriter.flush();
+                quorumTimeFileWriter.close();
+                System.out.println("WRITING TO FILE");
+            }
+            catch (IOException e)
+            {
+                throw new IllegalArgumentException("NOT WRITING SO BAD");
+            }
         }
     }
 
@@ -1294,8 +1292,5 @@ public class Node  {
     public Integer[] allAlgorithms = {1, 2, 3, 4, 5, 6, 7};
     public static int shardNumber;
     public double seconds;
-    public int quorumConsensusTimeCount = -1;
-    public boolean initializingAlgorithms = true;
-    public int blockConstructionTimeCount;
     
 }
