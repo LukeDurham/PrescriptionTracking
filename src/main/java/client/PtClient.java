@@ -26,6 +26,8 @@ public class PtClient {
     Address myAddress;
     ArrayList<Address> fullNodes; //list of Doctors addresses in the quorum 
     String doctorName;
+    long startTime;
+    double seconds1;
 
 
     public PtClient(Object updateLock, BufferedReader reader, Address myAddress, ArrayList<Address> fullNodes) {
@@ -59,7 +61,10 @@ public class PtClient {
         submitTransaction(new PtTransaction(
         new Prescription("TestPatient", pharmacy, doctorName, medication, dosage, new Date(date.getTime()), 
         amount), String.valueOf(System.currentTimeMillis())), fullNodes.get(0));
-        long startTime = System.nanoTime(); // start the timer
+        startTime = System.nanoTime(); // start the timer
+        double seconds1 = startTime / 1_000_000_000.0;
+
+        System.out.println("Start total time " + seconds1);
 
         // transactionCounter++;
 
@@ -97,6 +102,8 @@ public class PtClient {
 
     protected void readIncomingTransactions(ArrayList<PtTransaction> ptTransactions){
         long endTime = System.nanoTime(); // end the timer
+        double seconds2  = endTime / 1_000_000_000;
+        System.out.println("End total time " + seconds2);
 
         for(PtTransaction ptTransaction : ptTransactions){
             int trueCounter = 0;

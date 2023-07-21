@@ -314,13 +314,14 @@ public class Node  {
     public void sendQuorumReady(){
         //state = 1;
         stateChangeRequest(1);
-        System.out.println("STARTING QUORUM:" + System.currentTimeMillis());
+
+        long startTime1 = System.nanoTime();
+        double seconds1 = startTime1 / 1_000_000_000.0;
             try
             {
 
                 FileWriter quorumTimeFileWriter = new FileWriter("quorumTimeFile.csv" , true);
-                quorumTimeFileWriter.write("QS: " + System.currentTimeMillis() + "\n");
-                quorumTimeFileWriter.append(',');
+                quorumTimeFileWriter.write("STARTING QUORUM: " + seconds1 + ",\n");
                 quorumTimeFileWriter.flush();
                 quorumTimeFileWriter.close();
                 System.out.println("WRITING TO FILE");
@@ -330,12 +331,12 @@ public class Node  {
                 throw new IllegalArgumentException("NOT WRITING SO BAD");
             }
 
-        System.out.println("STARTING BLOCK:" + System.currentTimeMillis());
+        long startTime2 = System.nanoTime();
+        double seconds2 = startTime2 / 1_000_000_000.0;
         try
         {
             FileWriter quorumTimeFileWriter = new FileWriter("blockTimeFile.csv" , true);
-            quorumTimeFileWriter.write("SB: " + System.currentTimeMillis() + "\n");
-            quorumTimeFileWriter.append(',');
+            quorumTimeFileWriter.write("STARTING BLOCK: " + seconds2 + ",\n");
             quorumTimeFileWriter.flush();
             quorumTimeFileWriter.close();
         }
@@ -707,12 +708,12 @@ public class Node  {
                         getBlockHash(blockchain.getLast(), 0),
                                 blockchain.size(), answerSigs);
 
-                    System.out.println("CONSTRUCTING BLOCK:" + System.currentTimeMillis());
+                    long endTime = System.nanoTime();
+                    double seconds = endTime / 1_000_000_000.0;
                     try
                     {
                         FileWriter quorumTimeFileWriter = new FileWriter("blockTimeFile.csv" , true);
-                        quorumTimeFileWriter.write("CB: " + System.currentTimeMillis() + "\n");
-                        quorumTimeFileWriter.append(",");
+                        quorumTimeFileWriter.write("CONSTRUCTING BLOCK: " + seconds + ",\n");
                         quorumTimeFileWriter.flush();
                         quorumTimeFileWriter.close();
 
@@ -862,12 +863,12 @@ public class Node  {
             } 
             hashVotes.clear();
             quorumSigs.clear();
-            System.out.println("ENDING QUORUM:" + System.currentTimeMillis());
+            long endTime = System.nanoTime();
+            double seconds = endTime / 1_000_000_000.0;
             try
             {
                 FileWriter quorumTimeFileWriter = new FileWriter("quorumTimeFile.csv" , true);
-                quorumTimeFileWriter.write("QE: " + System.currentTimeMillis() + "\n");
-                quorumTimeFileWriter.append(',');
+                quorumTimeFileWriter.write("ENDING QUORUM: " + seconds + ",\n");
                 quorumTimeFileWriter.flush();
                 quorumTimeFileWriter.close();
                 System.out.println("WRITING TO FILE");
