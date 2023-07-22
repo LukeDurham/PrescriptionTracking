@@ -27,7 +27,7 @@ public class PtClient {
     Address myAddress;
     ArrayList<Address> fullNodes; //list of Doctors addresses in the quorum 
     String doctorName;
-    String fileName = "transactionperminute.csv";
+    boolean alreadyWritten;
 
 
     public PtClient(Object updateLock, BufferedReader reader, Address myAddress, ArrayList<Address> fullNodes) {
@@ -63,30 +63,30 @@ public class PtClient {
         amount), String.valueOf(System.currentTimeMillis())), fullNodes.get(0));
         long startTime = System.nanoTime(); // start the timer
         double seconds = startTime / 1_000_000_000.0;
-        int quourumSize = 8;
+        int quourumSize = 25;
 
         try {
-            FileWriter writer = new FileWriter(fileName);
-            // Write column names
-            writer.append("PatientUID ");
-            writer.append(',');
-            writer.append("Quorum Size ");
-            writer.append(',');
-            writer.append("Start Time ");
-            writer.append(',');
-            writer.append("End Time ");
-            writer.append(',');
-            writer.append("\n");
-            writer.append("Test Patient ");
-            writer.append(',');
-            writer.append(String.valueOf(quourumSize));
-            writer.append(',');
-            writer.append(String.valueOf(seconds) + " ");
-            writer.append(',');
-
+            alreadyWritten = false;
+            FileWriter writer = new FileWriter("transactionperminute.csv", true);
+            writer.write("PatientUID ,Quorum Size ,Start Time ,End Time ,\n ");
+            writer.write("Test Patient , " + String.valueOf(quourumSize) + " ," + String.valueOf(seconds) + " ,");
             writer.flush();
             writer.close();
-
+            // writer.append("PatientUID ");
+            // writer.append(',');
+            // writer.append("Quorum Size ");
+            // writer.append(',');
+            // writer.append("Start Time ");
+            // writer.append(',');
+            // writer.append("End Time ");
+            // writer.append(',');
+            // writer.append("\n");
+            // writer.append("Test Patient ");
+            // writer.append(',');
+            // writer.append(String.valueOf(quourumSize));
+            // writer.append(',');
+            // writer.append(String.valueOf(seconds) + " ");
+            // writer.append(',');
             System.out.println("CSV file with headers created successfully...");
 
         } catch (IOException e) {
@@ -133,13 +133,15 @@ public class PtClient {
     protected void readIncomingTransactions(ArrayList<PtTransaction> ptTransactions){
         long endTime = System.nanoTime(); // end the timer
         double seconds = endTime / 1_000_000_000.0;
-    
-        try {
+        if (alreadyWritten == false)
+        {
+            alreadyWritten = true;
+            try {
             // Open the FileWriter in append mode (true)
-            FileWriter writer = new FileWriter(fileName, true);
-    
+            FileWriter writer = new FileWriter("transactionperminute.csv", true);
+            
             // Write the elapsed time in seconds to a new line
-            writer.append(String.valueOf(seconds)).append("\n");
+            writer.write(String.valueOf(seconds) + "\n");
     
             writer.flush();
             writer.close();
@@ -148,6 +150,8 @@ public class PtClient {
             System.out.println("Error occurred while updating CSV...");
             e.printStackTrace();
         }
+        }
+        
     
         for(PtTransaction ptTransaction : ptTransactions){
             int trueCounter = 0;

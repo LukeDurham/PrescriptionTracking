@@ -1,2 +1,10 @@
 PatientUID ,Quorum Size ,Start Time ,End Time ,
-Test Patient ,3,9178.60133252 ,9184.064562927
+ Test Patient , 25 ,268838.955416717 ,268898.832920801
+PatientUID ,Quorum Size ,Start Time ,End Time ,
+ Test Patient , 25 ,268970.058798063 ,269030.422256386
+PatientUID ,Quorum Size ,Start Time ,End Time ,
+ Test Patient , 25 ,269051.539536998 ,269112.28016091
+PatientUID ,Quorum Size ,Start Time ,End Time ,
+ Test Patient , 25 ,269117.259147443 ,269178.623521195
+PatientUID ,Quorum Size ,Start Time ,End Time ,
+ Test Patient , 25 ,269183.453150369 ,269243.126477354
