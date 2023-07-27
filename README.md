@@ -1,4 +1,4 @@
-# BlueChain
+# PharamSys
 
 <p align="center">
   <img src="https://github.com/peytonlundquist/network/blob/master/bluechainlogo.png"  width="300" height="300">
@@ -8,28 +8,31 @@
 ## A distributed, decentralized blockchain network and research use-case implemented in Java.
 
 ## Description
-This network and research framework was  developed for the purpose of student researchers, interested in developing blockchain solutions. We provide an alternate prescription-tracking blockchain network system.
+This network and research use-case was developed for the purpose of student researchers, interested in developing blockchain solutions. We provide an alternate prescription-tracking blockchain network system implemented ontop of the BlueChain network.
 
-This software is not a public network costing gas fees to expirement with, nor is its implementation complex. With this, researchers or other curious people are invited expirement with and fork our software to meet their use case.
+This software is not a public network costing gas fees to expirement with, nor is its implementation complex. With this, researchers or anyone is encouraged to fork our software to use as a starting point or to implement their use case.
 
 We provide:
+  - Altered consensus mechanism with sharding
   - Easy configurability
-  - An understanable code base
-  - A Framework for multiple use cases, such as defi or healthcare
+  - A simplified code base
+  - A working extended implementation on the Bluechain platform
 
-This software heavily uses the following concepts in order to achieve a fully distributed, decentralized blockchain network:
+This software uses the following concepts in order to achieve a fully distributed, decentralized blockchain network:
   - Servent (Server + Client)
   - Java Sockets + TCP/IP
   - Multi-threading
   - Distributed Systems
   - Decentralization
   - Quorum Consensus
+  - Sharding
   
-BlueChain is not production-grade software, and should not be externally hosted unless proper security has been implemented first.
+Pharmasys is not production-grade software, and should not be externally hosted unless proper security has been implemented first.
   - Lack of certain securities
   - Few fail-safe mechanisms
   - Brand-New
   - Short-Lived Network
+  - Documentation unclear
 
 ## How to Use
 ### Prerequisites
@@ -49,21 +52,6 @@ BlueChain is not production-grade software, and should not be externally hosted 
   4. Launch the client associated with the use case defined in the config file
    - For the Defi use case for example, run 
     
-    ./startDefiWallet.sh 
+    ./startPrescriptionClient.sh 
+    Enter "t" in the client to submit transactions
       
-### Running a cross-host Network
-  For steps 1 and 2, please refer to the 'Running a Local Netork' section's steps 1 and 2
-  
-  3. Use Maven to compile the NetworkLauncher (navigate back to network/)
-  
-    mvn clean install
-  
-  4. Running the NetworkLauncher
-
-  - For this step, since we plan to run our network across multiple hosts, please ensure that the networking and firewall permissions / setting allow TCP/IP connections from the ports and hosts you will specify
-  - Using the NetworkLauncher java program in this context works by running the program on each host you plan on using. 
-  - Every node on each host is required to submit it's public key to the Node Registry, a directory intended to be shared across hosts. This allows each node in the network to properly use DSA with one another in addition to local peer discovery.
-  - It is suggested to specify a '-t <timedWaitDelayMilliseconds> for each program in order for the networks to bind but wait to connect until you have every host setup
-  - An example for our first host to run
-
-    `java -cp target/network-1.0-SNAPSHOT.jar NetworkLauncher -t 60000`
