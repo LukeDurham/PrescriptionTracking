@@ -5,10 +5,10 @@
 </p>
 
 
-## A distributed, decentralized blockchain network and research framework implemented in Java.
+## A distributed, decentralized blockchain network and research use-case implemented in Java.
 
 ## Description
-This network and research framework is being developed for the purpose of student researchers, interested in developing blockchain solutions. We provide an alternate blockchain network option to expirement with, without the burden of high learning curves associated with softwares such as HyperLedger, Ethereum, etc. 
+This network and research framework was  developed for the purpose of student researchers, interested in developing blockchain solutions. We provide an alternate prescription-tracking blockchain network system.
 
 This software is not a public network costing gas fees to expirement with, nor is its implementation complex. With this, researchers or other curious people are invited expirement with and fork our software to meet their use case.
 
