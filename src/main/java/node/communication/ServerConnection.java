@@ -100,12 +100,13 @@ public class ServerConnection extends Thread {
                     Address incomingAddress = (Address) incomingMessage.getMetadata();
                     node.alertWallet(null, incomingAddress);
                 }
-                
                 break;
             case REQUEST_CALCULATION:
+                int shard = node.getShard();
                 String hash = (String) incomingMessage.getMetadata();
-                node.calculateEligibity(hash, oout, oin);
+                node.calculateEligibity(hash, oout, oin, shard);
                 break;
+
         }
     }
 }

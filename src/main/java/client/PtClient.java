@@ -26,6 +26,9 @@ public class PtClient {
     Address myAddress;
     ArrayList<Address> fullNodes; //list of Doctors addresses in the quorum 
     String doctorName;
+    long startTime;
+    double seconds1;
+
 
     public PtClient(Object updateLock, BufferedReader reader, Address myAddress, ArrayList<Address> fullNodes) {
         this.updateLock = updateLock;
@@ -37,27 +40,33 @@ public class PtClient {
 
     protected void submitPrescription() throws IOException {
         alertFullNode();
-
-        // private Date date;
-        // private int amount;
-        // private String medication;
-        // private String doctorName;
-
+        // int transactionCounter = 0;
+        
         System.out.println("Generating Transaction");
         System.out.println("Enter the Pharamacy"); //improve on this concept.
-        String pharmacy = reader.readLine();
+        // String pharmacy = reader.readLine();
+        String pharmacy = "CVS";
         System.out.println("Enter the medication name"); 
-        String medication = reader.readLine();
+        // String medication = reader.readLine();
+        String medication = "Adderall";
         System.out.println("What is the dosage"); 
-        String dosage = reader.readLine();
+        // String dosage = reader.readLine();
+        String dosage = "20mg";
         System.out.println("How many?");
-        int amount = Integer.valueOf(reader.readLine()); ///dosage
+        // int amount = Integer.parseInt(reader.readLine());
+        int amount = 30; ///dosage
 
         Date date = new Date();
 
         submitTransaction(new PtTransaction(
-            new Prescription("TestPatient", pharmacy, doctorName, medication, dosage, new Date(date.getTime()), 
-            amount), String.valueOf(System.currentTimeMillis())), fullNodes.get(0));
+        new Prescription("TestPatient", pharmacy, doctorName, medication, dosage, new Date(date.getTime()), 
+        amount), String.valueOf(System.currentTimeMillis())), fullNodes.get(0));
+        startTime = System.nanoTime(); // start the timer
+        double seconds1 = startTime / 1_000_000_000.0;
+
+        System.out.println("Start total time " + seconds1);
+
+        // transactionCounter++;
 
         System.out.println("PTClient submitted prescription");
 
@@ -90,7 +99,11 @@ public class PtClient {
         }
     }
 
+
     protected void readIncomingTransactions(ArrayList<PtTransaction> ptTransactions){
+        long endTime = System.nanoTime(); // end the timer
+        double seconds2  = endTime / 1_000_000_000;
+        System.out.println("End total time " + seconds2);
 
         for(PtTransaction ptTransaction : ptTransactions){
             int trueCounter = 0;

@@ -2,7 +2,6 @@ package client;
 
 import java.io.*;
 import java.net.*;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Properties; 
 import java.util.regex.Pattern;
@@ -138,9 +137,7 @@ public class Client {
         Client wallet = new Client(port, 0);
         wallet.test = false; // This is not a test
 
-        while(!input.equals("exit") | !input.equals("e")){
-            System.out.print(">");
-            input = mainReader.readLine();
+        while ((input = mainReader.readLine()) != null){
             wallet.interpretInput(input);
         }
     }
@@ -161,7 +158,6 @@ public class Client {
 
                 /* Submit Transaction */
                 case("t"):
-                    if(use.equals("Defi")) defiClient.submitTransaction();
                     if(use.equals("Prescription")) ptClient.submitPrescription();
                     break;
 
@@ -228,13 +224,9 @@ public class Client {
                     Message incomingMessage = (Message) oin.readObject();
                     
                     if(incomingMessage.getRequest().name().equals("ALERT_WALLET")){
-                        if(use.equals("Defi")){
-                            MerkleTreeProof mtp = (MerkleTreeProof) incomingMessage.getMetadata();
-                            defiClient.updateAccounts(mtp);
-                        }else if(use.equals("Prescription")){
-                            ArrayList<PtTransaction> ptTransactions = (ArrayList<PtTransaction>) incomingMessage.getMetadata();
-                            ptClient.readIncomingTransactions(ptTransactions);
-                        }
+                        ArrayList<PtTransaction> ptTransactions = (ArrayList<PtTransaction>) incomingMessage.getMetadata();
+                        ptClient.readIncomingTransactions(ptTransactions);
+                        
                         
                     }
                 } catch (IOException e) {

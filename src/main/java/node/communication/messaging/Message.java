@@ -40,7 +40,7 @@ public class Message implements Serializable {
         RECONCILE_BLOCK,
         ALERT_WALLET,
         CALCULATION_COMPLETE,
-        REQUEST_CALCULATION
+        REQUEST_CALCULATION,
     }
 
     public Request getRequest(){
